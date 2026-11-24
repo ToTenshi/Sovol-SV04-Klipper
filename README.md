@@ -1,7 +1,8 @@
-Pleas use the newest release for download "[Release](https://github.com/Bully85/Sovol-SV04-Klipper/releases)"
+Please use the newest release for download: [Releases](https://github.com/Bully85/Sovol-SV04-Klipper/releases)
 
 # Sovol-SV04-Klipper
-This repository contains all the necessary configuration files for the SV04 to work with Klipper's Mirror and Copy modes, including images and descriptions.
+This repository contains all the configuration files the Sovol SV04 needs to run Klipper,
+including the IDEX modes Copy and Mirror, slicer profiles, macros, pictures and descriptions.
 
 ![KlipperSV04](docs/img/sv04klipper.png)
 
@@ -9,26 +10,40 @@ This repository contains all the necessary configuration files for the SV04 to w
 
 [![Donate with PayPal](https://raw.githubusercontent.com/stefan-niedermann/paypal-donate-button/master/paypal-donate-button.png)](https://www.paypal.com/donate/?hosted_button_id=L85ULXXQKALP6)
 
-# _Für die deutsche Anleitung wählt bitte READMEdeutsch.md_
+# _Für die deutsche Anleitung wählt bitte [READMEdeutsch.md](READMEdeutsch.md)_
 
-# new
-Click here for the Discord https://discord.gg/22VQXyuq
-# update
-Attention, the configs have changed with the new update. Please re-insert IDEX_mode.cfg, macros.cfg and Start-End-Macro.cfg. If the display is needed, these are in the config/SV04-with-display folder. Otherwise, if the original klipper is installed, config/SV04-works-with-orign-klipper can also be used but without the orign display
+Discord: https://discord.gg/22VQXyuq
 
-New macros for calibration and filament (`SV04_MENU`, guided Z offset for both nozzles, `SAVE_Z_OFFSET`, `LOAD_FILAMENT` …). Copy the new file `sv04_tools.cfg` as well, and keep your own `variables.cfg`, because it holds your T1 offsets. See [Calibration & macros](docs/Kalibrierung-Calibration.md).
+# News
 
-Change the Startcode in the Slicer [Cura](Cura Profile/Startcode.md) [Prusa_Slicer](Prusaslicer Profile/Startcode.md)
+All changes are listed in the [CHANGELOG](CHANGELOG.md).
 
-New: ready-to-use profiles for [Bambu Studio](<Bambu Studio Profile/README.md>) (Single T0/T1, Dual, Copy, Mirror)
+- **Installation only via a fresh MainsailOS.** The pre-made custom image is no longer supported.
+  See [Installation](#installation).
+- **New macros:** `SV04_MENU`, guided Z offset for both nozzles, `SAVE_Z_OFFSET`,
+  `LOAD_FILAMENT` … ([Calibration & macros](docs/Kalibrierung-Calibration.md)).
+  When updating, also copy `sv04_tools.cfg` and **keep your own `variables.cfg`**, because it holds your T1 offsets.
+- **New:** profiles for [Bambu Studio](<Bambu Studio Profile/README.md>).
+- Start code for the slicers: [Cura](<Cura Profile/Startcode.md>), [PrusaSlicer](<Prusaslicer Profile/Startcode.md>)
+
 # Introduction
 
-Different configs are required for the STM and GD versions of the printer.
-Both are included in the "printer.cfg" file and you just need to uncomment the correct one.
-You can verify whether your chip is STM or GD by either opening your electric box and checking manually, or there is an error message with the z-Tilt.
+The STM32 and GD32 versions of the printer need slightly different configs.
+Both are included in `printer.cfg`, and you only need to uncomment the right block
+(section *Z Stepper Settings*). You can check your chip by opening the electronics box, or by
+running `Z_TILT_ADJUST`: with the wrong block, you get an error message.
 
-This guide will help you set up your SV04 with Klipper, including the COPY and MIRROR modes.
+# Features
 
+- Copy mode (different temperatures possible, no separate first layer settings for the right extruder)
+- Mirror mode (different temperatures possible, no separate first layer settings for the right extruder)
+- Dual mode
+- Single mode (left or right nozzle)
+- Bed mesh only over the print area (also covers the second copy in Copy/Mirror)
+- Input shaping
+- Guided Z offset calibration for both nozzles, filament load/unload, menu for Mainsail/Fluidd ([details](docs/Kalibrierung-Calibration.md))
+- Original Sovol display (only with the [Bully85 Klipper fork](#optional-original-sovol-display))
+- And much more
 
 # Slicer profiles
 
@@ -38,127 +53,126 @@ This guide will help you set up your SV04 with Klipper, including the COPY and M
 
 In all profiles, COPY and MIRROR are limited to a 150 mm wide print area (left half of the bed).
 
-
-# Features
-
-- Copy Mode (supports different temperatures but does not support first layer settings for the right Extruder)
-- Mirror Mode (supports different temperatures but does not support first layer settings for the right Extruder)
-- Dual Mode
-- Single Mode
-- Bed Mesh Levelling
-- Input Shaping
-- Guided Z offset calibration for both nozzles, filament load/unload, menu for Mainsail/Fluidd ([details](docs/Kalibrierung-Calibration.md))
-- Display Functionality
-- And much more
-
-
 # Requirements
 
-- Raspberry Pi 3 or newer with WiFi
-    - Pi Zero won't work 
-    - Pi 2 may or may not work, not recommended
-- Optional but recommended: Original 7" touch screen
-- Optional: Camera
-- SSH; For example:
-    - Powershell and Windows Terminal have SSH built-in
-    - alternatively Putty or another SSH program (https://putty.org/)
-- SFTP or SCP; For example:
-    - FileZilla (https://filezilla-project.org/)
-    - WinScp (https://winscp.net)
-- Pi Imager (https://www.raspberrypi.com/software/)
-- The configuration files provided in this repository
-- MicroSD Card for the Raspi (min 8GB, the complete install is ~5.5GB)
-- SD Card to flash the SV04 (max 8GB, formatted in Fat32 4096)
+- Raspberry Pi 3 or newer with Wi-Fi
+    - Pi Zero won't work
+    - Pi 2 may work, but is not recommended
+- MicroSD card for the Raspberry Pi (at least 16 GB)
+- SD card to flash the SV04 (max. 8 GB, FAT32 with 4096-byte clusters)
+- [Raspberry Pi Imager](https://www.raspberrypi.com/software/)
+- SSH access (Windows Terminal/PowerShell have it built in, alternatively [PuTTY](https://putty.org/))
+- Optional: original 7" touch screen (KlipperScreen) and a camera
 
+# Installation
 
-# Installation via pre-made OS image
+Installation is done **only on a fresh MainsailOS**. MainsailOS ships the current original Klipper,
+so the config folder for original Klipper is used:
+`config/Sv04-works-with origin-klipper`.
 
-The operating system for the Raspberry Pi can be found in the "[image Raspberry PI 3_4](https://drive.google.com/drive/folders/1rZepxzwUR5QTXRXcv5EBYin_gFiMcKVD)" directory. 
-This should be installed onto the MicroSD card using the [Raspberry Pi Imager](https://www.raspberrypi.com/software/). 
-Make sure to adjust your WiFi settings before writing the image (you can find them by clicking on the cog wheel in the bottom right corner). 
+## 1. Install MainsailOS
 
-The firmware.bin file in the "Firmware bin" directory should be placed on the (Full Size)SD card and flashed onto the printer with the original display unplugged (the original display is not needed at this stage as it will not function). 
-The files from the "config" directory should now be transferred to the Raspberry Pi as described [below](#transferring-files), or directly in the Mainsail interface, which can be accessed by using the IP address or Hostname.
-- the Hostname can be configured in the WiFi Settings in Pi Imager 
-- the IP can be found in your router
+1. Start the Raspberry Pi Imager and choose your Raspberry Pi model.
+2. Operating system: *Other specific-purpose OS → 3D printing → Mainsail OS*.
+3. In the settings (*Edit settings*), set the hostname (e.g. `sv04`), user name, password and
+   Wi-Fi, and enable SSH in the *Services* tab.
+4. Write the card, put it into the Pi and boot. After a few minutes Mainsail opens at
+   `http://sv04.local` (or via the Pi's IP from your router).
 
+## 2. Build and flash the printer firmware
 
-# Installation on an Existing OS
+The firmware must match the Klipper version on the Pi, so it is built on the Pi itself.
+Connect [via SSH](#using-ssh) and run:
 
-## Without Kiauh
-
-Coming soon.
-
-## If you use Kiauh
-Follow the [Kiauh](https://github.com/th33xitus/kiauh) instructions first, then come back.
-
-- Log in to the Raspberry Pi [via SSH](#using-ssh) and enter the following command:
-```sh 
-sudo nano kiauh/klipper_repos.txt.example
+```sh
+cd ~/klipper
+make menuconfig
 ```
 
-- Add the following line at the end (see image below):
-```sh 
-https://github.com/Bully85/klipper
+Choose these settings:
+
+| Option | Value |
+|--------|-------|
+| Micro-controller Architecture | STMicroelectronics STM32 |
+| Processor model | STM32F103 |
+| Bootloader offset | 28KiB bootloader |
+| Clock Reference | 8 MHz crystal |
+| Communication interface | Serial (on USART1 PA10/PA9) |
+| Baud rate for serial port | 115200 |
+
+These values also work for the GD32 version. Save with `Q` → `Y`, then build the firmware and
+copy it into the config folder, so you can download it in Mainsail:
+
+```sh
+make clean && make
+cp out/klipper.bin ~/printer_data/config/firmware.bin
 ```
-![KiauhSV04](docs/img/klipper_repos.txt.PNG)
 
-- Save the file with Ctrl+X -> Y. 
-- Rename the file to remove ".example" from the file name and press Enter, then Y. 
-- Run Kiauh with the command 
-```sh 
-./kiauh/kiauh.sh
+In Mainsail, go to *Machine*, download `firmware.bin` and copy it onto the SD card for the printer.
+With the **original display unplugged**, insert the card and switch the printer on. Flashing
+takes about 10 seconds. Then delete `firmware.bin` from the Mainsail config folder again.
+
+## 3. Upload the configuration
+
+1. In Mainsail under *Machine*, upload all files from `config/Sv04-works-with origin-klipper`.
+   Create the subfolder `macro/shell_commands` and upload the two `adxl_*.sh` files there.
+2. Connect the printer to the Pi via USB and check the serial port via SSH:
+   `ls /dev/serial/by-id/`. If the name differs from `printer.cfg` (`[mcu] serial:`), change it there.
+3. In `printer.cfg`, enable the matching *Z Stepper* block for your chip (STM32 or GD32).
+4. Click *Save & Restart*. Klipper should now show *Ready*.
+
+## 4. Calibrate
+
+Run `SV04_MENU` and work through the steps in order. See [Calibration & macros](docs/Kalibrierung-Calibration.md).
+
+## Optional: original Sovol display
+
+The original Sovol display (DGUS/T5UID1) only works with the Klipper fork
+[Bully85/klipper](https://github.com/Bully85/klipper). If you need it, switch Klipper on the fresh
+MainsailOS to the fork via SSH:
+
+```sh
+cd ~/klipper
+git remote set-url origin https://github.com/Bully85/klipper
+git fetch origin
+git checkout -B master origin/master
+sudo systemctl restart klipper
 ```
-- Select Settings [6] 
-- Then [1] to set the custom Klipper repository
-- Choose [4] "Bully85/klipper"
-- Then confirm everything with [y].
 
-Exit SSH
+Then do this instead of the steps above:
 
+- Build the firmware as in [step 2](#2-build-and-flash-the-printer-firmware). The fork offers
+  the T5UID1 option in `make menuconfig`. Alternatively, flash the ready-made `Firmware bin/firmware.bin`.
+- Upload `config/SV04-with-display` instead of `Sv04-works-with origin-klipper`.
+- Fix the "invalid" message in Mainsail:
 
-# Installation on a new OS 
-
-Using the Raspi Imager, install Mainsail OS from 'Other specific-purpose OS' -> '3D printing' -> 'Mainsail OS'.
-Then boot your Raspi, connect via SSH, and install [Kiauh](https://github.com/th33xitus/kiauh). 
-Now follow the [instructions above](#if-you-use-kiauh) to overwrite the default Klipper install with this one.
-Once done connect via SFTP/SCP, and transfer all the files from this repo's 'config' folder into 'printer_data/config/'.
-Reboot the Raspi for good measure, and you're done.
-
-
-# Using SSH
-
-You can use SSH via a graphical interface as mentioned [above](#requirements), or via the Terminal.
-If you choose something like putty, follow their instructions.
-The Terminal is already installed and usually quicker.
-- open the Windows Terminal (it's called Terminal, not the old CMD), or Powershell 
-- connect by typing 'ssh username@hostname' and enter your password when prompted
-    - username and hostname are the ones you set up [earlier](#installation-via-pre-made-os-image)
-    - if you're installing onto an existing OS, I trust that you know the username and hostname/IP
-- do what you need...
-- to exit, press Ctrl+D
-
-
-# Transferring Files 
-
-Now, the files and folders from the "config" directory must be copied to your printer's directory on the Raspberry Pi. The default is "printer_data". 
-If this is not the case for you, please adjust the paths in the config and .sh files. 
-
-The easiest way to do this is via an SFTP or SCP Program, such as FileZilla or WinScp [mentioned above](#requirements)
-
-
-# Fixing the Invalid Message in Mainsail
-
-To fix the invalid message in Mainsail, SSH into Klipper and execute the following command:
-
-```sh 
+```sh
 sudo nano ~/printer_data/systemd/moonraker.env
 ```
 ![moonraker.env1](docs/img/moonraker.env1.JPG)
 
-Append "-g"  to the end of the "MOONRAKER_ARGS" Line: 
+Append `-g` to the end of the `MOONRAKER_ARGS` line:
 ![moonraker.env2](docs/img/moonraker.env2.JPG)
 
-Quit and save, then reboot. 
+Save, reboot, then click *invalid* in Mainsail and run a *soft repair*.
 
-In Mainsail, click on 'invalid' and perform a soft repair. Your setup should now be ready!
+## Optional: touch screen (KlipperScreen)
+
+Install KlipperScreen with [KIAUH](https://github.com/dw-0/kiauh). Then upload `KlipperScreen.conf`
+from the config folder.
+
+# Updating
+
+Upload the changed files from the config folder. Don't overwrite `variables.cfg`, and don't
+overwrite the `#*# SAVE_CONFIG` block at the end of your `printer.cfg`, because these hold your
+calibration values. What changed is listed in the [CHANGELOG](CHANGELOG.md).
+
+# Using SSH
+
+- Open Windows Terminal or PowerShell (on Linux/macOS: Terminal).
+- Connect with `ssh username@hostname` (as set in the Raspberry Pi Imager) and enter your password.
+- Exit with Ctrl+D.
+
+# For developers and AI assistants
+
+[LLM-WIKI.md](LLM-WIKI.md) describes the structure, conventions, pitfalls and test methods of this repository.
