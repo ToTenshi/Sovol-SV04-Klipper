@@ -20,7 +20,7 @@
     "overrides": {
         "machine_name": { "default_value": "SV04 Copy Mode" },
         "machine_extruder_count": { "default_value": 2 },
-        "machine_width": { "default_value": 302 },
+        "machine_width": { "default_value": 150 },
         "machine_depth": { "default_value": 302 },
         "machine_height": { "default_value": 402 },	
         "machine_max_feedrate_x": { "value": 500 },

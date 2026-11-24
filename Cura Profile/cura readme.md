@@ -1,4 +1,22 @@
-# Path for the Profiles
+# Install the Cura profiles (Cura 4.x and 5.x)
+
+**Recommended:** copy the files into your Cura **user folder**. This works for every Cura 5 version
+and survives Cura updates. Replace `5.x` with your version, e.g. `5.8` (Cura 4: e.g. `4.13`):
+
+| Repo folder | Windows | Linux |
+|-------------|---------|-------|
+| `definitions/*.def.json` | `%APPDATA%\cura\5.x\definitions` | `~/.local/share/cura/5.x/definitions` |
+| `extruders/*.def.json` | `%APPDATA%\cura\5.x\extruders` | `~/.local/share/cura/5.x/extruders` |
+| `meshes/SV04.STL` | `%APPDATA%\cura\5.x\meshes` | `~/.local/share/cura/5.x/meshes` |
+| `MeshPrintSize.py` | `%APPDATA%\cura\5.x\scripts` | `~/.local/share/cura/5.x/scripts` |
+
+Create missing folders. On Linux (also Flatpak) the script `./sv04-cura-install.sh` in the repo root does all of this.
+Restart Cura afterwards.
+
+COPY and MIRROR are limited to a 150 mm wide print area (left half of the bed), so the
+nozzles can't collide. `START_PRINT` extends the bed mesh to the second copy automatically.
+
+## Alternative: program folder (old method)
 
 
 ```sh
