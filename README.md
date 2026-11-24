@@ -16,7 +16,11 @@ Click here for the Discord https://discord.gg/22VQXyuq
 # update
 Attention, the configs have changed with the new update. Please re-insert IDEX_mode.cfg, macros.cfg and Start-End-Macro.cfg. If the display is needed, these are in the config/SV04-with-display folder. Otherwise, if the original klipper is installed, config/SV04-works-with-orign-klipper can also be used but without the orign display
 
+New macros for calibration and filament (`SV04_MENU`, guided Z offset for both nozzles, `SAVE_Z_OFFSET`, `LOAD_FILAMENT` …). Copy the new file `sv04_tools.cfg` as well, and keep your own `variables.cfg`, because it holds your T1 offsets. See [Calibration & macros](docs/Kalibrierung-Calibration.md).
+
 Change the Startcode in the Slicer [Cura](Cura Profile/Startcode.md) [Prusa_Slicer](Prusaslicer Profile/Startcode.md)
+
+New: ready-to-use profiles for [Bambu Studio](<Bambu Studio Profile/README.md>) (Single T0/T1, Dual, Copy, Mirror)
 # Introduction
 
 Different configs are required for the STM and GD versions of the printer.
@@ -26,9 +30,13 @@ You can verify whether your chip is STM or GD by either opening your electric bo
 This guide will help you set up your SV04 with Klipper, including the COPY and MIRROR modes.
 
 
-# In Progress
+# Slicer profiles
 
-Cura 5.3 is currently not supported, but we are working on it.
+- [Bambu Studio](<Bambu Studio Profile/README.md>) (Linux installer: `./sv04-bambu-install.sh`)
+- [PrusaSlicer](<Prusaslicer Profile/README.md>)
+- [Cura](<Cura Profile/cura readme.md>) (Linux installer for Cura 5.x: `./sv04-cura-install.sh`)
+
+In all profiles, COPY and MIRROR are limited to a 150 mm wide print area (left half of the bed).
 
 
 # Features
@@ -39,6 +47,7 @@ Cura 5.3 is currently not supported, but we are working on it.
 - Single Mode
 - Bed Mesh Levelling
 - Input Shaping
+- Guided Z offset calibration for both nozzles, filament load/unload, menu for Mainsail/Fluidd ([details](docs/Kalibrierung-Calibration.md))
 - Display Functionality
 - And much more
 

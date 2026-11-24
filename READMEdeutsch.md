@@ -18,11 +18,20 @@ Diese Anleitung beschreibt, wie ihr euren SV04, inklusive der COPY und MIRROR mo
 # update
 Achtung, die configs haben sich mit dem neuen Update geändert. Bitte fügen Sie IDEX_mode.cfg, Macros.cfg und Start-End-Macro.cfg erneut ein. Wenn das Display benötigt wird, befinden sich diese im Ordner config/SV04-with-display. Andernfalls kann bei installiertem Original-Klipper auch config/SV04-works-with-orign-klipper verwendet werden, jedoch ohne das original Display
 
+Neue Makros für Kalibrierung und Filament (`SV04_MENU`, geführter Z-Offset für beide Düsen, `SAVE_Z_OFFSET`, `LOAD_FILAMENT` …). Bitte auch die neue Datei `sv04_tools.cfg` kopieren. Die eigene `variables.cfg` nicht überschreiben, darin stehen eure T1-Offsets. Details: [Kalibrierung & Makros](docs/Kalibrierung-Calibration.md).
+
 Wechsel des Startcode im Slicer [Cura](Cura Profile/Startcode.md) [Prusa_Slicer](Prusaslicer Profile/Startcode.md)
 
+Neu: fertige Profile für [Bambu Studio](<Bambu Studio Profile/README.md>) (Single T0/T1, Dual, Copy, Mirror)
+
 solltet ihr neu installieren befolgt weiter diese Anleitung
-# In Arbeit..
-Momentan wird Cura 5.3 nicht untersützt ! wir arbeiten aber dran... 
+# Slicer-Profile
+
+- [Bambu Studio](<Bambu Studio Profile/README.md>) (Linux-Installer: `./sv04-bambu-install.sh`)
+- [PrusaSlicer](<Prusaslicer Profile/README.md>)
+- [Cura](<Cura Profile/cura readme.md>) (Linux-Installer für Cura 5.x: `./sv04-cura-install.sh`)
+
+COPY und MIRROR sind in allen Profilen auf 150 mm Breite begrenzt (linke Betthälfte).
 
 
 # Was geht alles?!!!
@@ -33,6 +42,7 @@ Momentan wird Cura 5.3 nicht untersützt ! wir arbeiten aber dran...
 - Single Mode
 - Bed Mesh Levelling
 - Input Shaper
+- Geführte Z-Offset-Kalibrierung für beide Düsen, Filament laden/entladen, Menü für Mainsail/Fluidd ([Details](docs/Kalibrierung-Calibration.md))
 - Das Display geht
 - uvm.
 
