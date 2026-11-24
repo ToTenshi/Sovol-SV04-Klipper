@@ -20,16 +20,15 @@ aus dem Ordner `config/` müssen also aktuell sein.
 
 ## Installation
 
-**Linux (automatisch):** Bambu Studio schließen und im Repo-Ordner ausführen:
+**Automatisch (empfohlen):** Bambu Studio schließen, dann:
 
-```sh
-./sv04-bambu-install.sh
-```
+- Windows: Doppelklick auf `install/install-slicer-profiles-windows.cmd`
+- macOS / Linux: im Repo-Ordner `./install/install-slicer-profiles.sh bambu`
 
 Das Skript kopiert die Presets nach `user/default` und in jeden angemeldeten
-Benutzerordner (nativ und Flatpak). Außerdem trägt es das 3D-Bettmodell ein.
+Benutzerordner (unter Linux auch Flatpak). Außerdem trägt es das 3D-Bettmodell ein.
 
-**Windows / macOS / manuell:** In Bambu Studio *Datei → Importieren → Konfigurationen
+**Manuell:** In Bambu Studio *Datei → Importieren → Konfigurationen
 importieren…* öffnen und alle `.json`-Dateien aus `machine`, `process` und `filament`
 auswählen. Alternativ kopierst du die Dateien direkt in die passenden Ordner:
 
@@ -77,8 +76,9 @@ python3 tools/build_profiles.py /var/lib/flatpak/app/com.bambulab.BambuStudio/cu
 Tested with Bambu Studio 2.7. The presets are standalone user presets, so no
 third-party vendor has to be enabled.
 
-- **Linux:** close Bambu Studio and run `./sv04-bambu-install.sh` from the repo folder.
-- **Windows/macOS:** *File → Import → Import Configs…* and select all `.json` files from
+- **Automatic:** close Bambu Studio, then double-click `install/install-slicer-profiles-windows.cmd`
+  (Windows) or run `./install/install-slicer-profiles.sh bambu` (macOS/Linux).
+- **Manual:** *File → Import → Import Configs…* and select all `.json` files from
   `machine`, `process` and `filament`.
 - **Upload to Mainsail:** click the Wi-Fi icon next to the printer and choose host type
   *OctoPrint* (Moonraker emulates it). Enter the Pi's IP and leave the API key empty.

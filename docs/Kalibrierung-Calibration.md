@@ -19,6 +19,7 @@ hinzufügen. Dann liegen sie als Buttons auf dem Dashboard.
 5. **XY-Offset von T1**: Kalibrierwürfel aus `Calibration for x_y offset/` drucken und den Wert
    mit `SET_T1_OFFSET X=… Y=…` speichern. Der alte Befehl `XY_offset_dual` funktioniert weiterhin.
 6. Optional **`PID_TUNE_BED`** und **`PID_TUNE_HOTEND TOOL=0`** bzw. **`TOOL=1`**.
+7. Optional **Input Shaper** messen (mit Sensor oder Testdruck), siehe unten. Ohne Messung ist ein Preset aktiv.
 
 Nach Schritt 3 und 6 erscheint ein Dialog mit **SAVE_CONFIG**. Damit werden die Werte in
 `printer.cfg` gespeichert und Klipper startet neu.
@@ -52,6 +53,48 @@ wenn T0 aktiv ist. `SAVE_Z_OFFSET` rechnet den T1-Offset korrekt heraus.
 Wie die Offsets zusammenspielen: Beim Start jedes Drucks werden alle G-Code-Offsets gelöscht. Bei
 jedem Werkzeugwechsel wird nur der T1-Anteil relativ verrechnet. Ein Babystep gilt also für beide
 Düsen und bleibt beim Wechsel erhalten.
+
+## Input Shaper
+
+Input Shaping unterdrückt Schwingungen (Ringing/Ghosting) und erlaubt dadurch höhere Beschleunigungen.
+
+**Ohne Sensor (Standard):** Ein vorsichtiges Preset ist automatisch aktiv: X EI 40 Hz (beide
+Schlitten), Y EI 30 Hz (Bett). Damit ist `max_accel` von 1000 auf **1500 mm/s²** angehoben.
+EI verzeiht eine geschätzte Frequenz deutlich besser als MZV. Die Glättung liegt bei 1500 mm/s²
+auf Y bei etwa 0,13 mm. Wer feinste Details braucht, setzt `max_accel` in der `printer.cfg`
+wieder auf 1000–1200. Die Slicer-Profile (Cura, Bambu Studio) sind auf 1500 mm/s² angepasst,
+PrusaSlicer nutzt direkt Klippers `max_accel`.
+
+**Eigene Werte ohne Sensor:** Den Ringing-Tower aus der
+[Klipper-Doku](https://www.klipper3d.org/Resonance_Compensation.html) drucken, die Frequenzen
+ermitteln und so speichern:
+
+```
+INPUT_SHAPER_SET AXIS=X TOOL=0 TYPE=mzv FREQ=45.0
+INPUT_SHAPER_SET AXIS=X TOOL=1 TYPE=mzv FREQ=43.0
+INPUT_SHAPER_SET AXIS=Y TYPE=mzv FREQ=32.0
+```
+
+`FREQ=0` setzt eine Achse zurück aufs Preset. `INPUT_SHAPER_STATUS` zeigt, was gerade gilt.
+
+**Mit Sensor (ADXL345):**
+
+1. Den ADXL345 an die SPI-Pins des Raspberry Pi anschließen und den Pi als zweite MCU einrichten
+   ([Anleitung](https://www.klipper3d.org/RPi_microcontroller.html),
+   [Verkabelung](https://www.klipper3d.org/Measuring_Resonances.html)). Einmalig per SSH
+   `~/klippy-env/bin/pip install numpy` ausführen.
+2. In der `printer.cfg` die Zeile `[include adxl345.cfg]` aktivieren und *Speichern & Neustarten*.
+3. Messen, jeweils mit dem Sensor an der passenden Stelle (in `SV04_MENU` gibt es dafür Buttons):
+   - `SHAPER_CALIBRATE_SV04 AXIS=X TOOL=0`: Sensor am linken Druckkopf
+   - `SHAPER_CALIBRATE_SV04 AXIS=X TOOL=1`: Sensor am rechten Druckkopf
+   - `SHAPER_CALIBRATE_SV04 AXIS=Y`: Sensor auf dem Bett
+4. Die Werte werden in `variables.cfg` gespeichert und sofort benutzt. Danach Klipper einmal
+   neu starten (Button **RESTART** im Dialog).
+
+Warum nicht über SAVE_CONFIG: Original-Klipper startet mit `[dual_carriage]` nicht, wenn
+Shaper-Werte in `[input_shaper]` stehen. Deshalb setzt die Config die Werte pro Schlitten zur
+Laufzeit, beim Start, bei jedem Werkzeugwechsel und in Copy/Mirror. Solange eine Messung auf
+SAVE_CONFIG wartet, blockiert `SAVE_CONFIG` mit einem Hinweis. Ein RESTART löst das auf.
 
 ## Filament
 
@@ -91,6 +134,11 @@ First-time order: `Z_TILT_HOME` → `BED_LEVEL_SCREWS` → `Z_OFFSET_CALIBRATE` 
   is active). During a print, SAVE_CONFIG is offered when the print finishes. Use this instead of
   Mainsail's own Z offset save button when printing with T1.
 - **`LOAD_FILAMENT` / `UNLOAD_FILAMENT`** `TOOL=0|1 TEMP=… LENGTH=…`
+- **Input shaper:** a preset (X EI 40 Hz, Y EI 30 Hz) is active without a sensor, so `max_accel` is 1500.
+  Own values: `INPUT_SHAPER_SET AXIS=X TOOL=0|1` or `AXIS=Y TYPE=… FREQ=…` (ringing tower).
+  With an ADXL345: `[include adxl345.cfg]`, then `SHAPER_CALIBRATE_SV04 AXIS=X TOOL=0|1` / `AXIS=Y`.
+  Values are stored in `variables.cfg` (never in `[input_shaper]`, which breaks original Klipper with
+  dual_carriage). Restart once after measuring. `INPUT_SHAPER_STATUS` shows the active values.
 - `min_extrude_temp` is now 170 °C. COPY/MIRROR bed meshes cover both copies, and PAUSE parks
   correctly in COPY/MIRROR.
 - Don't overwrite `variables.cfg` when updating, because it holds your T1 offsets.

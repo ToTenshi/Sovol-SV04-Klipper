@@ -10,7 +10,9 @@ and survives Cura updates. Replace `5.x` with your version, e.g. `5.8` (Cura 4: 
 | `meshes/SV04.STL` | `%APPDATA%\cura\5.x\meshes` | `~/.local/share/cura/5.x/meshes` |
 | `MeshPrintSize.py` | `%APPDATA%\cura\5.x\scripts` | `~/.local/share/cura/5.x/scripts` |
 
-Create missing folders. On Linux (also Flatpak) the script `./sv04-cura-install.sh` in the repo root does all of this.
+Create missing folders. The installer does all of this automatically: `install/install-slicer-profiles-windows.cmd`
+(Windows) or `./install/install-slicer-profiles.sh cura` (macOS/Linux, also Flatpak). macOS folder:
+`~/Library/Application Support/cura/5.x/`.
 Restart Cura afterwards.
 
 COPY and MIRROR are limited to a 150 mm wide print area (left half of the bed), so the
