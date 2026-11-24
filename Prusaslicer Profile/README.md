@@ -1,5 +1,11 @@
 # Install Profile PrusaSlicer
 
+## Automatic (recommended)
+
+Close PrusaSlicer, then double-click `install/install-slicer-profiles-windows.cmd` (Windows) or run
+`./install/install-slicer-profiles.sh prusa` (macOS/Linux, also Flatpak). The script splits the
+bundle into single user presets and sets the bed model path for your system. No import is needed.
+
 ## Copy and import
 
 - First copy the folder "SV04" in the Folder path:

@@ -1,0 +1,144 @@
+#!/usr/bin/env bash
+# Install the Sovol SV04 Klipper slicer profiles on Linux and macOS.
+# Installiert die SV04-Slicer-Profile unter Linux und macOS.
+#
+#   ./install/install-slicer-profiles.sh            all slicers that are found
+#   ./install/install-slicer-profiles.sh bambu cura prusa   only these
+#
+# Supported: Bambu Studio, Cura 4/5, PrusaSlicer (native and Flatpak on Linux).
+# Close the slicers before running. Works with the bash 3.2 that ships with macOS.
+set -euo pipefail
+
+REPO="$(cd "$(dirname "$0")/.." && pwd)"
+OS="${SV04_OS:-$(uname -s)}"            # SV04_OS only for tests
+WANT="${*:-bambu cura prusa}"
+INSTALLED=0
+
+say()  { printf '%s\n' "$*"; }
+warn() { printf 'WARNING: %s\n' "$*" >&2; }
+want() { case " $WANT " in *" $1 "*) return 0;; *) return 1;; esac; }
+
+running() {   # running <process-pattern>
+    pgrep -f -i "$1" >/dev/null 2>&1
+}
+
+case "$OS" in
+    Darwin)
+        SUP="$HOME/Library/Application Support"
+        BAMBU_BASES=("$SUP/BambuStudio")
+        CURA_BASES=("$SUP/cura")
+        PRUSA_BASES=("$SUP/PrusaSlicer")
+        ;;
+    Linux)
+        BAMBU_BASES=("$HOME/.config/BambuStudio" "$HOME/.var/app/com.bambulab.BambuStudio/config/BambuStudio")
+        CURA_BASES=("$HOME/.local/share/cura" "$HOME/.var/app/com.ultimaker.cura/data/cura")
+        PRUSA_BASES=("$HOME/.config/PrusaSlicer" "$HOME/.var/app/com.prusa3d.PrusaSlicer/config/PrusaSlicer")
+        ;;
+    *)
+        say "Unsupported system '$OS'. On Windows use install-slicer-profiles-windows.cmd"; exit 1 ;;
+esac
+
+# ------------------------------------------------------------ Bambu Studio --
+install_bambu() {
+    local src="$REPO/Bambu Studio Profile" base found=0
+    if running "bambu-studio|BambuStudio"; then
+        warn "Bambu Studio is running - close it and run the script again (skipped)"; return
+    fi
+    for base in "${BAMBU_BASES[@]}"; do
+        [ -d "$base" ] || continue
+        found=1
+        mkdir -p "$base/sv04" "$base/user/default"
+        cp "$src/bed/SV04.stl" "$base/sv04/SV04.stl"
+        local user
+        for user in "$base"/user/*/; do
+            user="${user%/}"
+            say "Bambu Studio -> $user"
+            local kind
+            for kind in machine process filament; do
+                mkdir -p "$user/$kind"
+                cp "$src/$kind"/*.json "$user/$kind/"
+            done
+            # 3D bed model only for the presets with the full 300 mm bed
+            local f
+            for f in "$user/machine/Sovol SV04 Klipper "*.json; do
+                if grep -q '"300x0"' "$f" && ! grep -q '"bed_custom_model"' "$f"; then
+                    sed "1a\\
+    \"bed_custom_model\": \"$base/sv04/SV04.stl\",
+" "$f" > "$f.tmp" && mv "$f.tmp" "$f"
+                fi
+            done
+        done
+        INSTALLED=$((INSTALLED + 1))
+    done
+    [ $found = 1 ] || say "Bambu Studio: not found (start it once, then run again)"
+}
+
+# -------------------------------------------------------------------- Cura --
+install_cura() {
+    local src="$REPO/Cura Profile" base ver found=0
+    if running "UltiMaker-Cura|Ultimaker-Cura|cura\.AppImage|com\.ultimaker\.cura"; then
+        warn "Cura is running - close it and run the script again (skipped)"; return
+    fi
+    for base in "${CURA_BASES[@]}"; do
+        [ -d "$base" ] || continue
+        for ver in "$base"/[0-9]*.[0-9]*; do
+            [ -d "$ver" ] || continue
+            found=1
+            say "Cura -> $ver"
+            mkdir -p "$ver/definitions" "$ver/extruders" "$ver/meshes" "$ver/scripts"
+            cp "$src"/definitions/*.def.json "$ver/definitions/"
+            cp "$src"/extruders/*.def.json "$ver/extruders/"
+            cp "$src"/meshes/* "$ver/meshes/"
+            cp "$src/MeshPrintSize.py" "$ver/scripts/"
+            INSTALLED=$((INSTALLED + 1))
+        done
+    done
+    [ $found = 1 ] || say "Cura: not found (start it once, then run again)"
+}
+
+# ------------------------------------------------------------- PrusaSlicer --
+# Splits the config bundle into single user presets (printer/print/filament).
+install_prusa() {
+    local src="$REPO/Prusaslicer Profile" base found=0
+    if running "prusa-slicer|PrusaSlicer"; then
+        warn "PrusaSlicer is running - close it and run the script again (skipped)"; return
+    fi
+    for base in "${PRUSA_BASES[@]}"; do
+        [ -d "$base" ] || continue
+        found=1
+        say "PrusaSlicer -> $base"
+        mkdir -p "$base/printer" "$base/print" "$base/filament" "$base/sv04"
+        cp "$src/SV04/SV04.STL" "$base/sv04/SV04.STL"
+        awk -v base="$base" -v model="$base/sv04/SV04.STL" '
+            function close_out() { if (out != "") close(out); out = "" }
+            /^\[(printer|print|filament):/ {
+                close_out()
+                kind = substr($0, 2, index($0, ":") - 2)
+                name = substr($0, index($0, ":") + 1); sub(/\]$/, "", name)
+                out = base "/" kind "/" name ".ini"
+                print "# generated by the SV04 installer from PrusaSlicer_config_bundle_SV04_Klipper.ini" > out
+                next
+            }
+            /^\[/ { close_out(); next }
+            out != "" {
+                if ($0 ~ /^bed_custom_model = ./) $0 = "bed_custom_model = " model
+                print > out
+            }
+            END { close_out() }
+        ' "$src/PrusaSlicer_config_bundle_SV04_Klipper.ini"
+        INSTALLED=$((INSTALLED + 1))
+    done
+    [ $found = 1 ] || say "PrusaSlicer: not found (start it once, then run again)"
+}
+
+want bambu && install_bambu
+want cura  && install_cura
+want prusa && install_prusa
+
+say ""
+if [ "$INSTALLED" -gt 0 ]; then
+    say "Done ($INSTALLED target(s)). Start the slicer and choose a 'SV04' printer."
+else
+    say "Nothing installed - no supported slicer found."
+    exit 1
+fi

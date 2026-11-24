@@ -1,0 +1,220 @@
+#!/usr/bin/env bash
+# Sovol SV04 setup for a fresh MainsailOS - no KIAUH needed.
+# Einrichtung des SV04 auf einem frischen MainsailOS - ohne KIAUH.
+#
+# On the Raspberry Pi (via SSH):
+#   git clone <this repository> ~/Sovol-SV04-Klipper
+#   ~/Sovol-SV04-Klipper/install/sv04-pi-setup.sh
+#
+# What it does (asks first):
+#   1. optional: switch Klipper to the Bully85 fork (original Sovol display)
+#   2. back up ~/printer_data/config and copy the SV04 configuration
+#      (variables.cfg and an existing SV04 printer.cfg are kept)
+#   3. select STM32/GD32 and the serial port of the printer
+#   4. build the printer firmware (no make menuconfig needed) -> firmware.bin
+#   5. optional: install KlipperScreen with its official installer
+#   6. restart Klipper
+#
+# Options: --update          only refresh the macro files, keep printer.cfg
+#          --variant original|display   --chip stm32|gd32
+#          --firmware yes|no --klipperscreen yes|no   --yes (no questions)
+set -euo pipefail
+
+REPO="$(cd "$(dirname "$0")/.." && pwd)"
+KLIPPER="${SV04_KLIPPER_DIR:-$HOME/klipper}"
+CONFIG="${SV04_CONFIG_DIR:-$HOME/printer_data/config}"
+SERIAL_DIR="${SV04_SERIAL_DIR:-/dev/serial/by-id}"
+MOONRAKER_URL="${SV04_MOONRAKER_URL:-http://localhost:7125}"
+FORK_URL="https://github.com/Bully85/klipper"
+
+VARIANT="" CHIP="" FIRMWARE="" KSCREEN="" UPDATE=0 YES=0 SWITCHED=0
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --update) UPDATE=1 ;;
+        --variant) VARIANT="$2"; shift ;;
+        --chip) CHIP="$2"; shift ;;
+        --firmware) FIRMWARE="$2"; shift ;;
+        --klipperscreen) KSCREEN="$2"; shift ;;
+        --yes|-y) YES=1 ;;
+        -h|--help) sed -n '2,23p' "$0"; exit 0 ;;
+        *) echo "Unknown option $1"; exit 1 ;;
+    esac
+    shift
+done
+
+say()  { printf '\n\033[1;36m==> %s\033[0m\n' "$*"; }
+info() { printf '    %s\n' "$*"; }
+warn() { printf '\033[1;33m    WARNING: %s\033[0m\n' "$*"; }
+die()  { printf '\033[1;31mERROR: %s\033[0m\n' "$*" >&2; exit 1; }
+
+ask() {   # ask <question> <default> -> echoes the answer
+    local answer
+    if [ $YES = 1 ] || [ ! -t 0 ]; then echo "$2"; return; fi
+    read -r -p "    $1 [$2]: " answer
+    echo "${answer:-$2}"
+}
+
+# ------------------------------------------------------------------ checks --
+[ "$(id -u)" != 0 ] || die "Do not run as root (no sudo) - run as the normal user, e.g. pi"
+[ -d "$KLIPPER" ] || die "$KLIPPER not found - is this a MainsailOS?"
+[ -d "$CONFIG" ] || die "$CONFIG not found - is this a MainsailOS?"
+
+if [ -z "$VARIANT" ]; then
+    if git -C "$KLIPPER" remote get-url origin 2>/dev/null | grep -qi bully85; then def=display; else def=original; fi
+    if [ $UPDATE = 1 ]; then VARIANT=$def; else
+        info "Variant: 'original' = original Klipper, no Sovol display (recommended)"
+        info "         'display'  = Bully85 Klipper fork with the original Sovol display"
+        VARIANT=$(ask "original or display?" "$def")
+    fi
+fi
+case "$VARIANT" in
+    original) SRC="$REPO/config/Sv04-works-with origin-klipper" ;;
+    display)  SRC="$REPO/config/SV04-with-display" ;;
+    *) die "Unknown variant '$VARIANT' (original or display)" ;;
+esac
+
+# ------------------------------------------------------- 1. Klipper source --
+if [ "$VARIANT" = display ] && ! git -C "$KLIPPER" remote get-url origin | grep -qi bully85; then
+    say "Switching Klipper to the Bully85 fork"
+    git -C "$KLIPPER" remote set-url origin "$FORK_URL"
+    git -C "$KLIPPER" fetch origin
+    git -C "$KLIPPER" checkout -B master origin/master
+    SWITCHED=1
+    info "Mainsail may show Klipper as 'invalid' afterwards - see README (moonraker.env -g)."
+elif [ "$VARIANT" = original ] && git -C "$KLIPPER" remote get-url origin | grep -qi bully85; then
+    warn "Klipper is the Bully85 fork, but variant 'original' was chosen - using the fork anyway."
+fi
+
+# ------------------------------------------------------- 2. configuration --
+say "Copying the SV04 configuration to $CONFIG"
+BACKUP="$CONFIG/../config_backup_$(date +%Y%m%d_%H%M%S).tar.gz"
+tar -czf "$BACKUP" -C "$CONFIG" .
+info "Backup: $(cd "$(dirname "$BACKUP")" && pwd)/$(basename "$BACKUP")"
+
+FRESH_PRINTER_CFG=0
+for f in "$SRC"/*; do
+    name=$(basename "$f")
+    case "$name" in
+        variables.cfg)
+            if [ -f "$CONFIG/$name" ]; then info "keep    $name (your offsets)"; continue; fi ;;
+        printer.cfg)
+            if [ -f "$CONFIG/$name" ] && grep -q '^\[dual_carriage\]' "$CONFIG/$name"; then
+                info "keep    $name (already an SV04 config - compare with the repo for new options)"
+                continue
+            fi
+            [ $UPDATE = 1 ] && { info "skip    $name (--update)"; continue; }
+            FRESH_PRINTER_CFG=1 ;;
+    esac
+    cp -r "$f" "$CONFIG/"
+    info "copied  $name"
+done
+
+# ------------------------------------------------- 3. chip and serial port --
+if [ $FRESH_PRINTER_CFG = 1 ]; then
+    [ -n "$CHIP" ] || { info "Chip on the mainboard: STM32 (most printers) or GD32 (Giga Device)"; CHIP=$(ask "stm32 or gd32?" stm32); }
+    case "$CHIP" in
+        stm32) ;;
+        gd32)
+            say "Activating the GD32 Z stepper block"
+            awk '
+                /^#+ *Use this if yor Chip is STM32/ { mode = "stm"; print; next }
+                /^#+ *Use this if yor Chip is Giga Device/ { mode = "gd"; print; next }
+                /^#+$/ { mode = ""; print; next }
+                mode == "stm" && /^[^#[:space:]]/ { print "#" $0; next }
+                mode == "stm" && /^\[/ { print "#" $0; next }
+                mode == "gd" && /^#[^#]/ { print substr($0, 2); next }
+                { print }
+            ' "$CONFIG/printer.cfg" > "$CONFIG/printer.cfg.tmp" && mv "$CONFIG/printer.cfg.tmp" "$CONFIG/printer.cfg" ;;
+        *) die "Unknown chip '$CHIP' (stm32 or gd32)" ;;
+    esac
+
+    say "Serial port of the printer"
+    ports=()
+    for p in "$SERIAL_DIR"/*; do [ -e "$p" ] && ports+=("$p"); done
+    port=""
+    if [ ${#ports[@]} -eq 1 ]; then
+        port="${ports[0]}"
+    elif [ ${#ports[@]} -gt 1 ]; then
+        for p in "${ports[@]}"; do case "$p" in *1a86*) port="$p" ;; esac; done
+        for p in "${ports[@]}"; do info "found $p"; done
+        port=$(ask "Which port is the printer?" "${port:-${ports[0]}}")
+    fi
+    if [ -n "$port" ]; then
+        awk -v port="$port" '
+            /^\[mcu\]/ { in_mcu = 1 } /^\[/ && !/^\[mcu\]/ { in_mcu = 0 }
+            in_mcu && /^serial:/ { print "serial: " port; next } { print }
+        ' "$CONFIG/printer.cfg" > "$CONFIG/printer.cfg.tmp" && mv "$CONFIG/printer.cfg.tmp" "$CONFIG/printer.cfg"
+        info "serial: $port"
+    else
+        warn "No printer found in $SERIAL_DIR - connect it via USB, switch it on and set [mcu] serial: in printer.cfg"
+    fi
+fi
+
+# ------------------------------------------------------------- 4. firmware --
+[ -n "$FIRMWARE" ] || { [ $UPDATE = 1 ] && FIRMWARE=no || FIRMWARE=$(ask "Build the printer firmware now? (yes/no)" yes); }
+if [ "$FIRMWARE" = yes ]; then
+    say "Building the printer firmware (STM32F103, 28KiB bootloader, USART1 PA10/PA9, 115200 baud)"
+    {
+        echo "CONFIG_LOW_LEVEL_OPTIONS=y"
+        echo "CONFIG_MACH_STM32=y"
+        echo "CONFIG_MACH_STM32F103=y"
+        echo "CONFIG_STM32_FLASH_START_7000=y"
+        echo "CONFIG_STM32_CLOCK_REF_8M=y"
+        echo "CONFIG_STM32_SERIAL_USART1=y"
+        echo "CONFIG_SERIAL_BAUD=115200"
+        if [ "$VARIANT" = display ]; then
+            echo "CONFIG_T5UID1_SERIAL=y"
+            echo "CONFIG_STM32_T5UID1_SERIAL_USART3_PB11_PB10=y"
+        fi
+    } > "$KLIPPER/.config"
+    make -C "$KLIPPER" olddefconfig >/dev/null
+    required="CONFIG_MACH_STM32F103=y CONFIG_STM32_FLASH_START_7000=y CONFIG_STM32_CLOCK_REF_8M=y CONFIG_STM32_SERIAL_USART1=y CONFIG_SERIAL_BAUD=115200"
+    [ "$VARIANT" = display ] && required="$required CONFIG_T5UID1_SERIAL=y CONFIG_STM32_T5UID1_SERIAL_USART3_PB11_PB10=y"
+    for opt in $required; do
+        grep -qx "$opt" "$KLIPPER/.config" || die "Firmware option $opt was not accepted - run 'make menuconfig' in $KLIPPER and check the README"
+    done
+    make -C "$KLIPPER" clean >/dev/null
+    make -C "$KLIPPER" -j"$(nproc)" >/dev/null
+    cp "$KLIPPER/out/klipper.bin" "$CONFIG/firmware.bin"
+    info "Firmware: $CONFIG/firmware.bin"
+    info "-> In Mainsail (Machine) download firmware.bin, copy it to the printer SD card,"
+    info "   unplug the original display, insert the card and switch the printer on."
+    info "   Delete firmware.bin from the Mainsail config folder afterwards."
+fi
+
+# --------------------------------------------------------- 5. KlipperScreen --
+[ -n "$KSCREEN" ] || { [ $UPDATE = 1 ] && KSCREEN=no || KSCREEN=$(ask "Install KlipperScreen for a touch screen? (yes/no)" no); }
+if [ "$KSCREEN" = yes ]; then
+    say "Installing KlipperScreen (official installer, answer its questions)"
+    [ -d "$HOME/KlipperScreen" ] || git clone https://github.com/KlipperScreen/KlipperScreen.git "$HOME/KlipperScreen"
+    "$HOME/KlipperScreen/scripts/KlipperScreen-install.sh"
+    if ! grep -q '^\[update_manager KlipperScreen\]' "$CONFIG/moonraker.conf" 2>/dev/null; then
+        cat >> "$CONFIG/moonraker.conf" <<'EOF'
+
+[update_manager KlipperScreen]
+type: git_repo
+path: ~/KlipperScreen
+origin: https://github.com/KlipperScreen/KlipperScreen.git
+virtualenv: ~/.KlipperScreen-env
+requirements: scripts/KlipperScreen-requirements.txt
+managed_services: KlipperScreen
+EOF
+        info "Added KlipperScreen to the Mainsail update manager (moonraker.conf)"
+    fi
+fi
+
+# --------------------------------------------------------------- 6. restart --
+say "Restarting Klipper"
+# New Klipper code (fork switch) needs a service restart, a config change only RESTART
+if [ $SWITCHED = 1 ]; then endpoint="machine/services/restart?service=klipper"; else endpoint="printer/restart"; fi
+if command -v curl >/dev/null && curl -fsS -X POST "$MOONRAKER_URL/$endpoint" >/dev/null 2>&1; then
+    info "Klipper restarted via Moonraker"
+elif [ $SWITCHED = 1 ]; then
+    sudo systemctl restart klipper && info "Klipper service restarted"
+else
+    info "Please restart Klipper in Mainsail (Power menu -> Klipper restart)"
+fi
+
+say "Done"
+info "Next: flash firmware.bin (if built), then run SV04_MENU in Mainsail and calibrate."
+info "Guide: $REPO/docs/Kalibrierung-Calibration.md"

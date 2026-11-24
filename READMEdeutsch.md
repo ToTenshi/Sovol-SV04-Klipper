@@ -19,10 +19,16 @@ Discord: https://discord.gg/22VQXyuq
 Alle Änderungen stehen im [CHANGELOG](CHANGELOG.md).
 
 - **Installation nur noch über ein frisches MainsailOS.** Das fertige Custom-Image wird nicht mehr
-  unterstützt. Siehe [Installation](#installation).
+  unterstützt. Siehe [Installation](#installation). KIAUH braucht ihr nicht: Das neue Skript
+  `install/sv04-pi-setup.sh` richtet Config, Chip, Port und Firmware auf dem Pi ein.
+- **Slicer-Installer für Windows, macOS und Linux:** `install/install-slicer-profiles-windows.cmd` bzw.
+  `install/install-slicer-profiles.sh` (Bambu Studio, Cura, PrusaSlicer).
 - **Neue Makros:** `SV04_MENU`, geführter Z-Offset für beide Düsen, `SAVE_Z_OFFSET`,
   `LOAD_FILAMENT` … ([Kalibrierung & Makros](docs/Kalibrierung-Calibration.md)).
   Beim Update auch `sv04_tools.cfg` kopieren und die **eigene `variables.cfg` behalten**, darin stehen eure T1-Offsets.
+- **Input Shaping ohne Sensor:** Ein Preset ist standardmäßig aktiv und erlaubt 1500 statt 1000 mm/s².
+  Mit einem ADXL345 messt ihr pro Schlitten mit `SHAPER_CALIBRATE_SV04` ([Details](docs/Kalibrierung-Calibration.md#input-shaper)).
+  Beim Update auch `input_shaper.cfg` kopieren. Der Ordner `macro/shell_commands` wird nicht mehr gebraucht.
 - **Neu:** Profile für [Bambu Studio](<Bambu Studio Profile/README.md>).
 - Startcode für die Slicer: [Cura](<Cura Profile/Startcode.md>), [PrusaSlicer](<Prusaslicer Profile/Startcode.md>)
 
@@ -42,7 +48,7 @@ führt ihr `Z_TILT_ADJUST` aus: Mit dem falschen Block kommt eine Fehlermeldung.
 - Dual-Modus
 - Single-Modus (linke oder rechte Düse)
 - Bed Mesh nur über den Druckbereich (bei Copy/Mirror inklusive der zweiten Kopie)
-- Input Shaper
+- Input Shaper: Preset ohne Sensor (Standard) oder pro Schlitten mit einem ADXL345 gemessen
 - Geführte Z-Offset-Kalibrierung für beide Düsen, Filament laden/entladen, Menü für Mainsail/Fluidd ([Details](docs/Kalibrierung-Calibration.md))
 - Original-Sovol-Display (nur mit dem [Bully85-Klipper-Fork](#optional-original-sovol-display))
 - uvm.
@@ -50,12 +56,19 @@ führt ihr `Z_TILT_ADJUST` aus: Mit dem falschen Block kommt eine Fehlermeldung.
 
 # Slicer-Profile
 
-- [Bambu Studio](<Bambu Studio Profile/README.md>) (Linux-Installer: `./sv04-bambu-install.sh`)
-- [PrusaSlicer](<Prusaslicer Profile/README.md>)
-- [Cura](<Cura Profile/cura readme.md>) (Linux-Installer für Cura 5.x: `./sv04-cura-install.sh`)
+Alle Profile auf einmal installieren (Bambu Studio, Cura 4/5, PrusaSlicer). Schließt vorher die Slicer:
+
+| System | So geht's |
+|--------|-----------|
+| Windows | Doppelklick auf `install/install-slicer-profiles-windows.cmd` |
+| macOS / Linux | Im Terminal im Repo-Ordner: `./install/install-slicer-profiles.sh` |
+
+Das Skript findet die installierten Slicer (unter Linux auch Flatpak). Es kopiert die Drucker-,
+Prozess- und Filamentprofile sowie das 3D-Bettmodell. Details und manuelle Installation:
+[Bambu Studio](<Bambu Studio Profile/README.md>), [PrusaSlicer](<Prusaslicer Profile/README.md>),
+[Cura](<Cura Profile/cura readme.md>).
 
 COPY und MIRROR sind in allen Profilen auf 150 mm Breite begrenzt (linke Betthälfte).
-
 
 # Benötigt
 
@@ -71,9 +84,9 @@ COPY und MIRROR sind in allen Profilen auf 150 mm Breite begrenzt (linke Betthä
 
 # Installation
 
-Installiert wird **nur noch auf einem frischen MainsailOS**. MainsailOS bringt das aktuelle
-Original-Klipper mit. Deshalb nutzt ihr den Config-Ordner für Original-Klipper:
-`config/Sv04-works-with origin-klipper`.
+Installiert wird **nur noch auf einem frischen MainsailOS**, KIAUH braucht ihr nicht. MainsailOS
+(offiziell, über den Raspberry Pi Imager) bringt Klipper, Moonraker und Mainsail schon mit. Alles
+SV04-Spezifische erledigt danach **ein Skript** auf dem Pi.
 
 ## 1. MainsailOS installieren
 
@@ -84,17 +97,45 @@ Original-Klipper mit. Deshalb nutzt ihr den Config-Ordner für Original-Klipper:
 4. Karte schreiben, in den Pi stecken und starten. Nach ein paar Minuten erreicht ihr Mainsail
    unter `http://sv04.local` (oder über die IP des Pi aus eurem Router).
 
-## 2. Drucker-Firmware bauen und flashen
+## 2. SV04 per Skript einrichten (empfohlen)
 
-Die Firmware muss zur Klipper-Version auf dem Pi passen, deshalb baut ihr sie direkt auf dem Pi.
-Meldet euch [per SSH](#benutzung-von-ssh) an und führt aus:
+Verbindet den Drucker per USB mit dem Pi und schaltet ihn ein. Dann meldet euch
+[per SSH](#benutzung-von-ssh) an und führt aus:
 
 ```sh
-cd ~/klipper
-make menuconfig
+git clone -b sv04-bambu-calibration https://github.com/ToTenshi/Sovol-SV04-Klipper.git ~/Sovol-SV04-Klipper
+~/Sovol-SV04-Klipper/install/sv04-pi-setup.sh
 ```
 
-Wählt diese Einstellungen:
+Das Skript stellt ein paar Fragen (die empfohlene Antwort ist vorausgewählt) und dann:
+
+- sichert `~/printer_data/config` und kopiert die SV04-Konfiguration (Original-Klipper, oder den
+  Bully85-Fork für das Original-Sovol-Display),
+- aktiviert den passenden Z-Stepper-Block für euren Chip (STM32 oder GD32) und trägt den seriellen Port ein,
+- baut die Drucker-Firmware mit den richtigen Einstellungen (ohne `make menuconfig`) und legt sie
+  als `firmware.bin` in den Mainsail-Config-Ordner,
+- installiert auf Wunsch KlipperScreen mit dessen offiziellem Installer,
+- startet Klipper neu.
+
+## 3. Firmware flashen
+
+Ladet in Mainsail unter *Maschine* die `firmware.bin` herunter und kopiert sie auf die SD-Karte für
+den Drucker. Steckt bei **ausgestecktem Original-Display** die Karte ein und schaltet den Drucker
+ein. Das Flashen dauert etwa 10 Sekunden. Danach löscht ihr die `firmware.bin` wieder aus dem
+Mainsail-Config-Ordner.
+
+## 4. Kalibrieren
+
+Führt `SV04_MENU` aus und arbeitet die Schritte der Reihe nach ab. Siehe [Kalibrierung & Makros](docs/Kalibrierung-Calibration.md).
+
+## Manuelle Einrichtung (ohne Skript)
+
+<details>
+<summary>Firmware bauen und Konfiguration von Hand hochladen</summary>
+
+### Firmware bauen
+
+Per SSH: `cd ~/klipper && make menuconfig` und diese Werte wählen:
 
 | Option | Wert |
 |--------|------|
@@ -105,37 +146,30 @@ Wählt diese Einstellungen:
 | Communication interface | Serial (on USART1 PA10/PA9) |
 | Baud rate for serial port | 115200 |
 
-Diese Werte gelten auch für die GD32-Version. Speichert mit `Q` → `Y`. Dann baut ihr die Firmware
-und kopiert sie in den Config-Ordner, damit ihr sie in Mainsail herunterladen könnt:
+Diese Werte gelten auch für die GD32-Version. Speichert mit `Q` → `Y`, dann
+`make clean && make && cp out/klipper.bin ~/printer_data/config/firmware.bin`.
 
-```sh
-make clean && make
-cp out/klipper.bin ~/printer_data/config/firmware.bin
-```
-
-Ladet in Mainsail unter *Maschine* die `firmware.bin` herunter und kopiert sie auf die SD-Karte für
-den Drucker. Steckt bei **ausgestecktem Original-Display** die Karte ein und schaltet den Drucker
-ein. Das Flashen dauert etwa 10 Sekunden. Danach löscht ihr die `firmware.bin` wieder aus dem
-Mainsail-Config-Ordner.
-
-## 3. Konfiguration hochladen
+### Konfiguration hochladen
 
 1. Ladet in Mainsail unter *Maschine* alle Dateien aus `config/Sv04-works-with origin-klipper` hoch.
-   Legt den Unterordner `macro/shell_commands` an und ladet die beiden `adxl_*.sh` dort hinein.
-2. Verbindet den Drucker per USB mit dem Pi und prüft per SSH den seriellen Port:
-   `ls /dev/serial/by-id/`. Weicht der Name von der `printer.cfg` ab (`[mcu] serial:`), passt ihn dort an.
+2. Prüft per SSH mit `ls /dev/serial/by-id/` den seriellen Port und tragt ihn in der `printer.cfg` unter `[mcu] serial:` ein.
 3. Aktiviert in der `printer.cfg` den passenden *Z Stepper*-Block für euren Chip (STM32 oder GD32).
-4. Klickt auf *Speichern & Neustarten*. Klipper sollte jetzt *Ready* melden.
+4. Klickt auf *Speichern & Neustarten*.
 
-## 4. Kalibrieren
+</details>
 
-Führt `SV04_MENU` aus und arbeitet die Schritte der Reihe nach ab. Siehe [Kalibrierung & Makros](docs/Kalibrierung-Calibration.md).
+## Optional: ADXL345 für Input Shaping
+
+Ohne Sensor ist ein Preset aktiv. Wer seinen Drucker vermessen will, schließt einen ADXL345 an
+den Pi an, richtet den Pi als zweite MCU ein und aktiviert in der `printer.cfg` die Zeile
+`[include adxl345.cfg]`. Siehe [Kalibrierung & Makros](docs/Kalibrierung-Calibration.md#input-shaper).
 
 ## Optional: Original-Sovol-Display
 
 Das originale Sovol-Display (DGUS/T5UID1) funktioniert nur mit dem Klipper-Fork
-[Bully85/klipper](https://github.com/Bully85/klipper). Wer es braucht, stellt Klipper auf dem
-frischen MainsailOS per SSH auf den Fork um:
+[Bully85/klipper](https://github.com/Bully85/klipper). Antwortet ihr im Skript mit `display`, stellt
+es Klipper auf den Fork um, nutzt `config/SV04-with-display` und baut die Firmware mit
+Display-Unterstützung. Von Hand:
 
 ```sh
 cd ~/klipper
@@ -145,13 +179,11 @@ git checkout -B master origin/master
 sudo systemctl restart klipper
 ```
 
-Danach geht ihr statt wie oben so vor:
+In `make menuconfig` zusätzlich *Enable extra low-level configuration options* aktivieren, dann
+*Enable DGUS T5UID1 screen* → *USART3 (on PB11/PB10)*. Alternativ flasht ihr die fertige
+`Firmware bin/firmware.bin`.
 
-- Die Firmware baut ihr wie in [Schritt 2](#2-drucker-firmware-bauen-und-flashen). Der Fork bietet
-  in `make menuconfig` zusätzlich die T5UID1-Option. Alternativ flasht ihr die fertige
-  `Firmware bin/firmware.bin`.
-- Statt `Sv04-works-with origin-klipper` ladet ihr `config/SV04-with-display` hoch.
-- Die Meldung „ungültig“ in Mainsail behebt ihr so:
+Die Meldung „ungültig“ in Mainsail behebt ihr so:
 
 ```sh
 sudo nano ~/printer_data/systemd/moonraker.env
@@ -165,15 +197,21 @@ Speichert, startet neu, klickt in Mainsail auf *ungültig* und führt einen *Sof
 
 ## Optional: Touchscreen (KlipperScreen)
 
-Installiert KlipperScreen mit [KIAUH](https://github.com/dw-0/kiauh). Danach ladet ihr die
-`KlipperScreen.conf` aus dem Config-Ordner hoch.
+Das Skript fragt danach und nutzt den offiziellen Installer. Von Hand:
+`git clone https://github.com/KlipperScreen/KlipperScreen.git && ./KlipperScreen/scripts/KlipperScreen-install.sh`.
+Danach ladet ihr die `KlipperScreen.conf` aus dem Config-Ordner hoch.
 
 
 # Update
 
-Ladet die geänderten Dateien aus dem Config-Ordner hoch. Die `variables.cfg` und den Block
-`#*# SAVE_CONFIG` am Ende eurer `printer.cfg` überschreibt ihr nicht, darin stehen eure
-Kalibrierwerte. Was sich geändert hat, steht im [CHANGELOG](CHANGELOG.md).
+```sh
+git -C ~/Sovol-SV04-Klipper pull
+~/Sovol-SV04-Klipper/install/sv04-pi-setup.sh --update
+```
+
+`--update` erneuert nur die Makro-Dateien. Eure `printer.cfg` (inklusive Block `#*# SAVE_CONFIG`)
+und `variables.cfg` bleiben erhalten, vorher wird eine Sicherung angelegt. Was sich geändert hat,
+steht im [CHANGELOG](CHANGELOG.md). Wer ohne Skript aktualisiert, überschreibt diese beiden Dateien nicht.
 
 
 # Benutzung von SSH
@@ -185,4 +223,4 @@ Kalibrierwerte. Was sich geändert hat, steht im [CHANGELOG](CHANGELOG.md).
 
 # Für Entwickler und KI-Assistenten
 
-[LLM-WIKI.md](LLM-WIKI.md) beschreibt Aufbau, Konventionen, Fallstricke und Testmethoden dieses Repos.
+Das [Wiki](wiki/index.md) beschreibt Aufbau, Konventionen, Fallstricke und Testmethoden dieses Repos.
