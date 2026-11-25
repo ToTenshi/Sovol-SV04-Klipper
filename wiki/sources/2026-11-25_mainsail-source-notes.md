@@ -12,3 +12,6 @@ Read via `gh api repos/mainsail-crew/mainsail/contents/<file>` (branch develop),
 - `src/store/printer/getters.ts` getMacros: hides names starting with `_` and macros with `rename_existing` in the settings.
 - `src/components/panels/MacrogroupPanel.vue`: matching `existMacro.name.toLowerCase() === macro.name.toLowerCase()`.
   Macros that don't exist are filtered out. Visibility: standby = `standby|cancelled|complete|error`, `paused`, `printing`.
+- `src/store/gui/actions.ts` initDb: when the namespace is missing, it only writes the defaults from
+  `<config>/.theme/default.json` (if present) and `initVersion`. `saveSetting` writes individual keys
+  (`macros.mode` etc.) only when they change. So the key `macros` is missing in a fresh install.

@@ -60,6 +60,8 @@ newest version first.
 - The Cura guide now uses the user folder (survives Cura updates).
 
 ### Fixed
+- `mainsail_macro_groups.py` did nothing on a fresh Mainsail ("open Mainsail once"), because Mainsail
+  only stores the key `macros` once a setting changes. It now reads the whole namespace.
 - "Option 'minimum_cruise_ratio' is not valid" on older Klipper (e.g. an old MainsailOS image): the
   option is no longer set in either variant. Klipper's default (half of `max_accel`) matches the previous
   value. `max_accel_to_decel` was removed in mainline in 08/2025, so no single spelling works on old and

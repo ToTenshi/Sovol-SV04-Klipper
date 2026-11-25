@@ -90,17 +90,20 @@ def main():
     args = ap.parse_args()
     db = args.url.rstrip("/") + "/server/database/item"
 
+    # Read the whole Mainsail namespace: Mainsail only stores the key "macros"
+    # once somebody changed a macro setting, so it is usually missing.
     try:
-        current = request(db + "?namespace=mainsail&key=macros")["result"]["value"]
+        namespace = request(db + "?namespace=mainsail")["result"]["value"]
     except urllib.error.HTTPError as e:
         if e.code == 404:
-            print("Mainsail has not saved any settings yet - open Mainsail in the browser once, then run again.")
+            print("Mainsail has not created its settings yet - open Mainsail in the browser once, then run again.")
             return 1
         raise
     except (urllib.error.URLError, OSError) as e:
         print(f"Moonraker not reachable at {args.url}: {e}")
         return 1
 
+    current = namespace.get("macros", {}) if isinstance(namespace, dict) else {}
     existing = current.get("macrogroups", {}) or {}
     ours = {g[0] for g in GROUPS}
     if args.remove:
