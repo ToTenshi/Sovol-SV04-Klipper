@@ -95,6 +95,10 @@ SV04-specific is then done by **one script** on the Pi.
 
 ## 2. Set up the SV04 with the script (recommended)
 
+**First update MainsailOS:** In Mainsail under *Machine → Update Manager*, click *Update all*.
+The image often ships an older Klipper, and the firmware must be built from the current version
+(the script checks this).
+
 Connect the printer to the Pi via USB and switch it on. Then connect [via SSH](#using-ssh) and run:
 
 ```sh
@@ -110,6 +114,7 @@ The script asks a few questions (with the recommended answer as default) and the
 - builds the printer firmware with the right settings (no `make menuconfig`) and puts it into
   the Mainsail config folder as `firmware.bin`,
 - optionally installs KlipperScreen with its official installer,
+- arranges the macros in Mainsail as tidy groups (see below),
 - restarts Klipper.
 
 ## 3. Flash the firmware
@@ -121,6 +126,23 @@ about 10 seconds. Then delete `firmware.bin` from the Mainsail config folder aga
 ## 4. Calibrate
 
 Run `SV04_MENU` and work through the steps in order. See [Calibration & macros](docs/Kalibrierung-Calibration.md).
+
+## Tidy macros in Mainsail
+
+The script (or `python3 ~/Sovol-SV04-Klipper/install/mainsail_macro_groups.py` on the Pi) creates five
+macro panels on the dashboard and switches Mainsail to expert mode. Then only these panels are shown,
+not every internal macro:
+
+| Panel | Macros | Visible |
+|-------|--------|---------|
+| 1 SV04 | `SV04_MENU`, `LOAD_FILAMENT`, `UNLOAD_FILAMENT` | standby, paused |
+| 2 During print | `M600` (printing only), `SAVE_Z_OFFSET` | always |
+| 3 Calibration | Z tilt, bed screws, Z offset T0/T1, PID, input shaper | standby |
+| 4 IDEX | `T0`, `T1`, Copy/Mirror mode, `CLEAN_NOZZLE` | standby |
+| 5 Settings | `SET_T1_OFFSET`, `INPUT_SHAPER_SET`, `PREHEAT60/80` | standby |
+
+Reload Mainsail afterwards (F5). Your own groups are kept. You can move, rename or change the panels
+under *Settings → Macros*. `--remove` removes the SV04 groups again.
 
 ## Manual setup (without the script)
 

@@ -10,8 +10,12 @@
 - **Mainsail prompts** (Mainsail ≥ 2.9, Fluidd ≥ 1.27): `RESPOND TYPE=command MSG="action:prompt_begin …"`,
   `prompt_text`, `prompt_button Label|GCODE|color`, `prompt_button_group_start/_end`,
   `prompt_footer_button`, `prompt_show`, `prompt_end`. Macros started from buttons begin with `prompt_end`.
-- **Fork vs. mainline:** the fork (January 2024, v0.11.0-261) knows **no** `minimum_cruise_ratio`
-  (keep `max_accel_to_decel`) and doesn't check input shaper + dual_carriage.
+- **Fork vs. mainline:** the fork (January 2024, v0.11.0-261) knows **no** `minimum_cruise_ratio` and
+  doesn't check input shaper + dual_carriage.
+- **`minimum_cruise_ratio` / `max_accel_to_decel`:** mainline introduced `minimum_cruise_ratio` on
+  2024-03-14 and **removed** `max_accel_to_decel` on 2025-08-11. No spelling works on every version,
+  so **set neither**. The default is half of `max_accel` everywhere. Real error on an old MainsailOS
+  image: "Option 'minimum_cruise_ratio' is not valid in section 'printer'".
 - `SAVE_CONFIG` comments out values in the main `printer.cfg` that are overridden by the autosave block.
   `Z_OFFSET_APPLY_PROBE` computes from the loaded `z_offset`, not from a pending one.
 - `manual_probe` always exists as an object (default load), `printer.manual_probe.is_active` is always readable.

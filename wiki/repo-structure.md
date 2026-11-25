@@ -23,8 +23,9 @@
 
 The folders are **identical except for `printer.cfg` and `t5uid1.cfg`**. Expected differences:
 
-- `SV04-with-display/printer.cfg`: `[include t5uid1.cfg]`, `max_accel_to_decel` (the fork doesn't know `minimum_cruise_ratio`)
-- `Sv04-works-with origin-klipper/printer.cfg`: stub macros `DGUS_PRINT_START/END`, `minimum_cruise_ratio: 0.5`
+- `SV04-with-display/printer.cfg`: `[include t5uid1.cfg]`
+- `Sv04-works-with origin-klipper/printer.cfg`: stub macros `DGUS_PRINT_START/END`
+- Deceleration limit is deliberately not set in either variant ([pitfalls](klipper-jinja-pitfalls.md)).
 
 Check: `diff -r config/SV04-with-display "config/Sv04-works-with origin-klipper"` or
 `python3 tools/check_klipper_config.py`.

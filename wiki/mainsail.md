@@ -1,0 +1,24 @@
+# Mainsail
+
+## Macro groups (expert mode)
+
+- Mainsail stores its settings in the **Moonraker database**, namespace `mainsail`. Macro settings live
+  under `macros`: `mode` (`simple`|`expert`), `hiddenMacros`, `macrogroups.<id>`
+  ([source notes](sources/2026-11-25_mainsail-source-notes.md)).
+- Group: `name`, `color` (`primary|secondary|success|warning|error|custom`), `showInStandby/Printing/Pause`,
+  `macros[]` with `pos`, `name`, `color` (`group` = group colour), `showIn…`.
+- Groups are sorted **alphabetically by name**, hence the number prefixes "1 SV04" … "5 Settings".
+- In expert mode, every group becomes a dashboard panel `macrogroup_<id>`. Missing panels are
+  added to column 1 automatically.
+- Macro names match case-insensitively. Macros that don't exist are hidden (so
+  `SHAPER_CALIBRATE_SV04` can stay in the group even without `adxl345.cfg`).
+- **Never shown as macros:** names with a leading `_` and macros with `rename_existing` (PAUSE, RESUME,
+  CANCEL_PRINT, SAVE_CONFIG, BED_MESH_CALIBRATE). Mainsail has its own buttons for those.
+- `install/mainsail_macro_groups.py` writes via `POST /server/database/item` with fixed ids `sv04-1-main`
+  … `sv04-5-settings` (re-run = update), keeps groups with other ids, `--remove` deletes via
+  `DELETE /server/database/item`. Mainsail must have been opened once (otherwise the namespace is missing,
+  404), and it must be reloaded afterwards (F5).
+
+## Prompts
+
+See [klipper-jinja-pitfalls](klipper-jinja-pitfalls.md#) (`action:prompt_*`, Mainsail ≥ 2.9).

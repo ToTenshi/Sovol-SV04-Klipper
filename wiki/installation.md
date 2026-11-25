@@ -10,8 +10,11 @@ That's why everything SV04-specific is handled by `install/sv04-pi-setup.sh`.
 
 ## `install/sv04-pi-setup.sh` (on the Pi)
 
-Flow: variant (original/display) → optional fork switch (`git remote set-url` + `checkout -B master
-origin/master`) → `tar` backup of `~/printer_data/config` → copy config → chip/port → firmware →
+Flow: variant (original/display) → **version check** (original: Klipper commit < 2024-03-14 → stop
+with "update in Mainsail first", because old MainsailOS images ship an old Klipper and the firmware
+must be built from the current one) → Klipper switch if needed (`switch_klipper`: `git remote set-url` + `checkout -B master
+origin/master` + `pip install -r scripts/klippy-requirements.txt`). `display` → fork, `original` on a
+fork → back to Klipper3d. Detection via `origin` contains "bully85" → `tar` backup of `~/printer_data/config` → copy config → chip/port → firmware →
 optional KlipperScreen → restart.
 
 - **Copy rules:** `variables.cfg` is never overwritten if it exists. `printer.cfg` is kept if it already
@@ -24,6 +27,8 @@ optional KlipperScreen → restart.
   `~/printer_data/config/firmware.bin` (download via Mainsail).
 - **KlipperScreen:** clone + `scripts/KlipperScreen-install.sh` (interactive), plus an
   `[update_manager KlipperScreen]` entry in `moonraker.conf`.
+- **Mainsail macros:** `install/mainsail_macro_groups.py` ([mainsail](mainsail.md)), asked as step 6,
+  always run with `--update`.
 - **Restart:** via the Moonraker API (`/printer/restart`, after a fork switch
   `/machine/services/restart?service=klipper`), fallback `sudo systemctl`.
 - Test variables: `SV04_KLIPPER_DIR`, `SV04_CONFIG_DIR`, `SV04_SERIAL_DIR`, `SV04_MOONRAKER_URL`.

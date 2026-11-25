@@ -13,11 +13,13 @@
 #   3. select STM32/GD32 and the serial port of the printer
 #   4. build the printer firmware (no make menuconfig needed) -> firmware.bin
 #   5. optional: install KlipperScreen with its official installer
-#   6. restart Klipper
+#   6. arrange the macros in Mainsail as tidy groups (panels)
+#   7. restart Klipper
 #
 # Options: --update          only refresh the macro files, keep printer.cfg
 #          --variant original|display   --chip stm32|gd32
-#          --firmware yes|no --klipperscreen yes|no   --yes (no questions)
+#          --firmware yes|no --klipperscreen yes|no --macros yes|no
+#          --yes (no questions)
 set -euo pipefail
 
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
@@ -25,9 +27,10 @@ KLIPPER="${SV04_KLIPPER_DIR:-$HOME/klipper}"
 CONFIG="${SV04_CONFIG_DIR:-$HOME/printer_data/config}"
 SERIAL_DIR="${SV04_SERIAL_DIR:-/dev/serial/by-id}"
 MOONRAKER_URL="${SV04_MOONRAKER_URL:-http://localhost:7125}"
-FORK_URL="https://github.com/Bully85/klipper"
+FORK_URL="${SV04_FORK_URL:-https://github.com/Bully85/klipper}"
+MAINLINE_URL="${SV04_MAINLINE_URL:-https://github.com/Klipper3d/klipper}"
 
-VARIANT="" CHIP="" FIRMWARE="" KSCREEN="" UPDATE=0 YES=0 SWITCHED=0
+VARIANT="" CHIP="" FIRMWARE="" KSCREEN="" MACROS="" UPDATE=0 YES=0 SWITCHED=0
 while [ $# -gt 0 ]; do
     case "$1" in
         --update) UPDATE=1 ;;
@@ -35,8 +38,9 @@ while [ $# -gt 0 ]; do
         --chip) CHIP="$2"; shift ;;
         --firmware) FIRMWARE="$2"; shift ;;
         --klipperscreen) KSCREEN="$2"; shift ;;
+        --macros) MACROS="$2"; shift ;;
         --yes|-y) YES=1 ;;
-        -h|--help) sed -n '2,23p' "$0"; exit 0 ;;
+        -h|--help) sed -n '2,25p' "$0"; exit 0 ;;
         *) echo "Unknown option $1"; exit 1 ;;
     esac
     shift
@@ -74,15 +78,35 @@ case "$VARIANT" in
 esac
 
 # ------------------------------------------------------- 1. Klipper source --
-if [ "$VARIANT" = display ] && ! git -C "$KLIPPER" remote get-url origin | grep -qi bully85; then
-    say "Switching Klipper to the Bully85 fork"
-    git -C "$KLIPPER" remote set-url origin "$FORK_URL"
+switch_klipper() {   # switch_klipper <url> <label>
+    say "Switching Klipper to $2"
+    git -C "$KLIPPER" remote set-url origin "$1"
     git -C "$KLIPPER" fetch origin
     git -C "$KLIPPER" checkout -B master origin/master
+    # the other Klipper version may need other Python packages
+    if [ -x "$HOME/klippy-env/bin/pip" ] && [ -f "$KLIPPER/scripts/klippy-requirements.txt" ]; then
+        "$HOME/klippy-env/bin/pip" install -q -r "$KLIPPER/scripts/klippy-requirements.txt"
+    fi
     SWITCHED=1
+}
+if [ "$VARIANT" = display ] && ! git -C "$KLIPPER" remote get-url origin | grep -qi bully85; then
+    switch_klipper "$FORK_URL" "the Bully85 fork (original Sovol display)"
     info "Mainsail may show Klipper as 'invalid' afterwards - see README (moonraker.env -g)."
 elif [ "$VARIANT" = original ] && git -C "$KLIPPER" remote get-url origin | grep -qi bully85; then
-    warn "Klipper is the Bully85 fork, but variant 'original' was chosen - using the fork anyway."
+    # the fork is from January 2024 - the 'original' config needs current Klipper
+    switch_klipper "$MAINLINE_URL" "original Klipper (was: Bully85 fork)"
+fi
+
+# ------------------------------------------- Klipper must be current enough --
+# Older MainsailOS images ship an old Klipper. Klipper must be updated BEFORE the
+# firmware is built, because host and printer firmware have to match.
+if [ "$VARIANT" = original ]; then
+    kdate=$(git -C "$KLIPPER" log -1 --format=%ct 2>/dev/null || echo 0)
+    if [ "$kdate" -lt 1710374400 ]; then   # 2024-03-14
+        die "Klipper on this Pi is from $(date -d "@$kdate" +%Y-%m-%d 2>/dev/null || echo 'an old version') - too old.
+       Update it first in Mainsail: Machine -> Update Manager -> update everything.
+       Then run this script again (it builds the matching firmware)."
+    fi
 fi
 
 # ------------------------------------------------------- 2. configuration --
@@ -203,7 +227,15 @@ EOF
     fi
 fi
 
-# --------------------------------------------------------------- 6. restart --
+# ------------------------------------------------------- 6. Mainsail macros --
+[ -n "$MACROS" ] || { [ $UPDATE = 1 ] && MACROS=yes || MACROS=$(ask "Arrange the macros in Mainsail as groups? (yes/no)" yes); }
+if [ "$MACROS" = yes ]; then
+    say "Arranging the macros in Mainsail"
+    python3 "$REPO/install/mainsail_macro_groups.py" --url "$MOONRAKER_URL" | sed 's/^/    /' \
+        || warn "Could not set up the macro groups - run install/mainsail_macro_groups.py later"
+fi
+
+# --------------------------------------------------------------- 7. restart --
 say "Restarting Klipper"
 # New Klipper code (fork switch) needs a service restart, a config change only RESTART
 if [ $SWITCHED = 1 ]; then endpoint="machine/services/restart?service=klipper"; else endpoint="printer/restart"; fi

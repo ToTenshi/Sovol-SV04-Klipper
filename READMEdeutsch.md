@@ -99,6 +99,10 @@ SV04-Spezifische erledigt danach **ein Skript** auf dem Pi.
 
 ## 2. SV04 per Skript einrichten (empfohlen)
 
+**Zuerst MainsailOS aktualisieren:** In Mainsail unter *Maschine → Update Manager* auf
+*Alles aktualisieren* klicken. Das Image bringt oft ein älteres Klipper mit, und die Firmware muss
+aus der aktuellen Version gebaut werden (das Skript prüft das).
+
 Verbindet den Drucker per USB mit dem Pi und schaltet ihn ein. Dann meldet euch
 [per SSH](#benutzung-von-ssh) an und führt aus:
 
@@ -115,6 +119,7 @@ Das Skript stellt ein paar Fragen (die empfohlene Antwort ist vorausgewählt) un
 - baut die Drucker-Firmware mit den richtigen Einstellungen (ohne `make menuconfig`) und legt sie
   als `firmware.bin` in den Mainsail-Config-Ordner,
 - installiert auf Wunsch KlipperScreen mit dessen offiziellem Installer,
+- ordnet die Makros in Mainsail übersichtlich in Gruppen (siehe unten),
 - startet Klipper neu.
 
 ## 3. Firmware flashen
@@ -127,6 +132,23 @@ Mainsail-Config-Ordner.
 ## 4. Kalibrieren
 
 Führt `SV04_MENU` aus und arbeitet die Schritte der Reihe nach ab. Siehe [Kalibrierung & Makros](docs/Kalibrierung-Calibration.md).
+
+## Aufgeräumte Makros in Mainsail
+
+Das Skript (oder `python3 ~/Sovol-SV04-Klipper/install/mainsail_macro_groups.py` auf dem Pi) legt fünf
+Makro-Panels auf dem Dashboard an und stellt Mainsail auf den Experten-Modus. Dann seht ihr nur
+noch diese Panels statt aller internen Makros:
+
+| Panel | Makros | Sichtbar |
+|-------|--------|----------|
+| 1 SV04 | `SV04_MENU`, `LOAD_FILAMENT`, `UNLOAD_FILAMENT` | Bereit, Pause |
+| 2 During print | `M600` (nur beim Drucken), `SAVE_Z_OFFSET` | immer |
+| 3 Calibration | Z-Tilt, Bettschrauben, Z-Offset T0/T1, PID, Input Shaper | Bereit |
+| 4 IDEX | `T0`, `T1`, Copy-/Mirror-Modus, `CLEAN_NOZZLE` | Bereit |
+| 5 Settings | `SET_T1_OFFSET`, `INPUT_SHAPER_SET`, `PREHEAT60/80` | Bereit |
+
+Danach Mainsail neu laden (F5). Eigene Gruppen bleiben erhalten. Unter *Einstellungen → Makros*
+könnt ihr die Panels verschieben, umbenennen oder ändern. `--remove` entfernt die SV04-Gruppen wieder.
 
 ## Manuelle Einrichtung (ohne Skript)
 

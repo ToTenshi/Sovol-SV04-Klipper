@@ -23,6 +23,7 @@ directly from the code: background, decisions, pitfalls, test methods. It follow
 | [input-shaper.md](input-shaper.md) | Preset, per-carriage values, ADXL345, SAVE_CONFIG lock |
 | [klipper-jinja-pitfalls.md](klipper-jinja-pitfalls.md) | Klipper/Jinja traps, Mainsail prompts, fork vs. mainline |
 | [slicers.md](slicers.md) | Start G-code conventions, Bambu/Cura/PrusaSlicer specifics |
+| [mainsail.md](mainsail.md) | Macro groups, how Mainsail stores settings, prompts |
 | [installation.md](installation.md) | MainsailOS, `sv04-pi-setup.sh`, slicer installers, OS paths |
 | [testing.md](testing.md) | How to test without a printer |
 | [open-points.md](open-points.md) | Untested or open items |

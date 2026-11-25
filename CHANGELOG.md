@@ -22,6 +22,9 @@ newest version first.
   `config/SV04-with-display`.
 
 ### Added
+- Tidy macros in Mainsail: `install/mainsail_macro_groups.py` creates 5 macro panels (SV04, During print,
+  Calibration, IDEX, Settings) with visibility per printer state, switches to expert mode, keeps your
+  own groups, `--remove`. Included in `sv04-pi-setup.sh` (step 6, `--macros yes|no`).
 - Input shaping without a sensor: preset `input_shaper.cfg` (X EI 40 Hz, Y EI 30 Hz), set per
   carriage at runtime (start, T0/T1, COPY/MIRROR). `INPUT_SHAPER_SET`, `INPUT_SHAPER_STATUS`.
 - Optional ADXL345 measurement per carriage with `SHAPER_CALIBRATE_SV04` (stored in
@@ -40,7 +43,7 @@ newest version first.
 - `.gitattributes`: CRLF for `.cmd`/`.ps1`, LF for `.sh`.
 
 ### Changed
-- `max_accel` 1000 → 1500 mm/s² (fork: `max_accel_to_decel` 500 → 750). Cura 600 → 1500 mm/s².
+- `max_accel` 1000 → 1500 mm/s² (deceleration limit now Klipper's default = half). Cura 600 → 1500 mm/s².
   Bambu Studio: accelerations to 1500 and speeds raised slightly (inner walls 80, infill 100, travel 200 mm/s).
 - `adxl345.cfg` no longer needs the `gcode_shell_command` extension or the fixed `/home/pi` path.
   The invalid option `shaper_freq_dc` was removed. `ADXL_X`/`ADXL_Y` remain as aliases.
@@ -49,7 +52,7 @@ newest version first.
 - T1 offsets are applied relatively on tool changes, so babysteps are kept.
   All G-code offsets are reset at the start of a print.
 - `min_extrude_temp` changed from 1 to 170 °C.
-- Original Klipper: `minimum_cruise_ratio: 0.5` instead of `max_accel_to_decel`. Added stub
+- Original Klipper: added stub
   macros for `DGUS_PRINT_START`/`DGUS_PRINT_END`.
 - `XY_offset_dual` is now an alias of `SET_T1_OFFSET`.
 - PrusaSlicer bundle: removed 14 presets that were only compatible with Creality/Prusa printers.
@@ -57,6 +60,15 @@ newest version first.
 - The Cura guide now uses the user folder (survives Cura updates).
 
 ### Fixed
+- "Option 'minimum_cruise_ratio' is not valid" on older Klipper (e.g. an old MainsailOS image): the
+  option is no longer set in either variant. Klipper's default (half of `max_accel`) matches the previous
+  value. `max_accel_to_decel` was removed in mainline in 08/2025, so no single spelling works on old and
+  new Klipper.
+- `sv04-pi-setup.sh` with variant `original` on a Pi that already runs the Bully85 fork: it used to only
+  warn and copy the original config onto the fork (→ "minimum_cruise_ratio is not valid"). Now it
+  switches Klipper back to original Klipper and installs the Python requirements (also when switching to the fork).
+- `sv04-pi-setup.sh` stops if Klipper (original variant) is older than 2024-03-14 and asks you to update
+  it in Mainsail first, so the firmware is built from the current version.
 - PAUSE and CLEAN_NOZZLE used the non-existent `printer.dual_carriage.mode`. Pausing in MIRROR
   mode could fail with "Move out of range".
 - An X/Y offset of T1 was carried over into the next print.
