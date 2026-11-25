@@ -23,3 +23,6 @@ latest commit 2024-01-26), mainline = `Klipper3d/klipper` (master at that time).
   "Screen serial interface" (only with `LOW_LEVEL_OPTIONS`), option `STM32_T5UID1_SERIAL_USART3_PB11_PB10`.
 - **`KlipperScreen/scripts/KlipperScreen-install.sh`:** interactive (`read -p`: backend X11/Wayland,
   NetworkManager, service), does not add an update_manager entry.
+- **`klippy/gcode.py` (both versions):** `args_r = re.compile('([A-Z_]+|[A-Z*])')` (fork: `[A-Z*/]`),
+  `cmd = parts[1] + parts[2].strip()`. So a name like `SV04_MENU` becomes the command `SV04`.
+  Real error on 2026-11-25: `Unknown command:"_SV04"` on SAVE_CONFIG (macro `_SV04_SAVE_CONFIG_BASE`).

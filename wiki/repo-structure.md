@@ -4,7 +4,7 @@
 |------|----------|
 | `config/Sv04-works-with origin-klipper/` | **Default.** Config for original Klipper (MainsailOS) |
 | `config/SV04-with-display/` | Config for the fork `Bully85/klipper` with the original DGUS display (`t5uid1.cfg`) |
-| `config/*/sv04_tools.cfg` | `SV04_MENU`, calibration wizards, filament, helpers ([offsets](offsets.md)) |
+| `config/*/sv04_tools.cfg` | `SOVOL_MENU`, calibration wizards, filament, helpers ([offsets](offsets.md)) |
 | `config/*/input_shaper.cfg` | Input shaper preset + runtime logic, always included ([input-shaper](input-shaper.md)) |
 | `config/*/adxl345.cfg` | Optional ADXL345 + `SHAPER_CALIBRATE_SV04` (include commented out) |
 | `config/*/variables.cfg` | Template for `[save_variables]`: T1 offsets, shaper values. **The user's copy is never overwritten.** |

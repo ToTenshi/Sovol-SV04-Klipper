@@ -23,6 +23,13 @@
   `DELETE /server/database/item`. Mainsail must have been opened once (otherwise the namespace is missing,
   404), and it must be reloaded afterwards (F5).
 
+## Z offset panel
+
+From `src/components/mixins/zoffset.ts` / `ToolheadControls/ZoffsetControl.vue`: babystep =
+`SET_GCODE_OFFSET Z_ADJUST=±x MOVE=1`, reset = `SET_GCODE_OFFSET Z=0`, save = `Z_OFFSET_APPLY_PROBE`
+(shown when `stepper_z endstop_pin` is `probe:z_virtual_endstop` and the command exists, and the
+offset ≠ 0), then a dialog with `SAVE_CONFIG`. Displayed value = `homing_origin[2]` (includes the T1 share).
+
 ## Prompts
 
 See [klipper-jinja-pitfalls](klipper-jinja-pitfalls.md#) (`action:prompt_*`, Mainsail ≥ 2.9).

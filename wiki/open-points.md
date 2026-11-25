@@ -9,6 +9,7 @@
 | Fork (January 2024) on a brand-new MainsailOS | Python compatibility unchecked |
 | Clone URL in the READMEs | Points to `ToTenshi/Sovol-SV04-Klipper` branch `sv04-bambu-calibration`. Adjust after merging into main/upstream |
 | Input shaper preset | Estimated (no SV04 measurements found). Real measurements welcome as `sources/` |
-| Macro simulator | Only exists outside the repo. Should become `tools/simulate_macros.py` |
+| Macro simulator | Z offset part is in the repo (`tools/simulate_z_offset.py`), IDEX/shaper scenarios not yet |
+| Mainsail *Reset* while T1 is active | Also deletes the T1 share (see offsets) |
 | Discord link | May expire, only the maintainer can create a permanent one |
 | Licence | The original repo has no licence. Clarify with Bully85 before publishing standalone |

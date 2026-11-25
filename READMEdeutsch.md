@@ -18,12 +18,18 @@ Discord: https://discord.gg/22VQXyuq
 
 Alle Änderungen stehen im [CHANGELOG](CHANGELOG.md).
 
+- **Z-Offset korrigiert:** Ein gemessener Wert gilt schon beim nächsten Druck, auch vor SAVE_CONFIG.
+  Das Mainsail-Panel „Z-Offset“ (Babystep + Speichern) und `SAVE_Z_OFFSET` machen dasselbe. Nach
+  dem Z-Tilt wird Z neu gehomt.
+- **Makros umbenannt (wichtig beim Update):** `SOVOL_MENU` (vorher SV04_MENU), `CALIBRATE_Z_T1`,
+  `SET_OFFSET_T1`. Die alten Namen konnte Klipper nicht aufrufen (Ziffern mitten im Namen).
+
 - **Installation nur noch über ein frisches MainsailOS.** Das fertige Custom-Image wird nicht mehr
   unterstützt. Siehe [Installation](#installation). KIAUH braucht ihr nicht: Das neue Skript
   `install/sv04-pi-setup.sh` richtet Config, Chip, Port und Firmware auf dem Pi ein.
 - **Slicer-Installer für Windows, macOS und Linux:** `install/install-slicer-profiles-windows.cmd` bzw.
   `install/install-slicer-profiles.sh` (Bambu Studio, Cura, PrusaSlicer).
-- **Neue Makros:** `SV04_MENU`, geführter Z-Offset für beide Düsen, `SAVE_Z_OFFSET`,
+- **Neue Makros:** `SOVOL_MENU`, geführter Z-Offset für beide Düsen, `SAVE_Z_OFFSET`,
   `LOAD_FILAMENT` … ([Kalibrierung & Makros](docs/Kalibrierung-Calibration.md)).
   Beim Update auch `sv04_tools.cfg` kopieren und die **eigene `variables.cfg` behalten**, darin stehen eure T1-Offsets.
 - **Input Shaping ohne Sensor:** Ein Preset ist standardmäßig aktiv und erlaubt 1500 statt 1000 mm/s².
@@ -131,7 +137,7 @@ Mainsail-Config-Ordner.
 
 ## 4. Kalibrieren
 
-Führt `SV04_MENU` aus und arbeitet die Schritte der Reihe nach ab. Siehe [Kalibrierung & Makros](docs/Kalibrierung-Calibration.md).
+Führt `SOVOL_MENU` aus und arbeitet die Schritte der Reihe nach ab. Siehe [Kalibrierung & Makros](docs/Kalibrierung-Calibration.md).
 
 ## Aufgeräumte Makros in Mainsail
 
@@ -141,11 +147,11 @@ noch diese Panels statt aller internen Makros:
 
 | Panel | Makros | Sichtbar |
 |-------|--------|----------|
-| 1 SV04 | `SV04_MENU`, `LOAD_FILAMENT`, `UNLOAD_FILAMENT` | Bereit, Pause |
+| 1 SV04 | `SOVOL_MENU`, `LOAD_FILAMENT`, `UNLOAD_FILAMENT` | Bereit, Pause |
 | 2 During print | `M600` (nur beim Drucken), `SAVE_Z_OFFSET` | immer |
 | 3 Calibration | Z-Tilt, Bettschrauben, Z-Offset T0/T1, PID, Input Shaper | Bereit |
 | 4 IDEX | `T0`, `T1`, Copy-/Mirror-Modus, `CLEAN_NOZZLE` | Bereit |
-| 5 Settings | `SET_T1_OFFSET`, `INPUT_SHAPER_SET`, `PREHEAT60/80` | Bereit |
+| 5 Settings | `SET_OFFSET_T1`, `INPUT_SHAPER_SET`, `PREHEAT60/80` | Bereit |
 
 Danach Mainsail neu laden (F5). Eigene Gruppen bleiben erhalten. Unter *Einstellungen → Makros*
 könnt ihr die Panels verschieben, umbenennen oder ändern. `--remove` entfernt die SV04-Gruppen wieder.

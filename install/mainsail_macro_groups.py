@@ -21,7 +21,7 @@ S, P, A = "standby", "printing", "paused"   # printer states in which a macro is
 # (group id, name, colour, [ (macro, colour, states) ])  - names are sorted by Mainsail
 GROUPS = [
     ("sv04-1-main", "1 SV04", "primary", [
-        ("SV04_MENU", "group", {S, A}),
+        ("SOVOL_MENU", "group", {S, A}),
         ("LOAD_FILAMENT", "group", {S, A}),
         ("UNLOAD_FILAMENT", "group", {S, A}),
     ]),
@@ -33,7 +33,7 @@ GROUPS = [
         ("Z_TILT_HOME", "group", {S}),
         ("BED_LEVEL_SCREWS", "group", {S}),
         ("Z_OFFSET_CALIBRATE", "primary", {S}),
-        ("CALIBRATE_T1_Z", "primary", {S}),
+        ("CALIBRATE_Z_T1", "primary", {S}),
         ("PID_TUNE_BED", "warning", {S}),
         ("PID_TUNE_HOTEND", "warning", {S}),
         ("INPUT_SHAPER_STATUS", "group", {S}),
@@ -47,7 +47,7 @@ GROUPS = [
         ("CLEAN_NOZZLE", "group", {S}),
     ]),
     ("sv04-5-settings", "5 Settings", "secondary", [
-        ("SET_T1_OFFSET", "group", {S}),
+        ("SET_OFFSET_T1", "group", {S}),
         ("INPUT_SHAPER_SET", "group", {S}),
         ("PREHEAT60", "group", {S}),
         ("PREHEAT80", "group", {S}),

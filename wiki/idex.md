@@ -12,5 +12,5 @@
 - `EXTRUDERS=2` + carriage state selects dual/copy/mirror, `EXTRUDERS=1` selects single (`EXTRUDER=0|1`).
 - **Bed mesh in COPY/MIRROR:** `START_PRINT` extends `AREA_END` X itself (copy: +151, mirror:
   302 − min X). That's why slicers must not add an offset ([slicers](slicers.md)).
-- After every carriage change the following must run: `_SV04_TOOL_OFFSET` ([offsets](offsets.md)) and
-  `_SV04_APPLY_SHAPER` ([input-shaper](input-shaper.md)).
+- After every carriage change the following must run: `_SOVOL_TOOL_OFFSET` ([offsets](offsets.md)) and
+  `_SOVOL_APPLY_SHAPER` ([input-shaper](input-shaper.md)).

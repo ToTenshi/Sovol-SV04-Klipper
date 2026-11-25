@@ -7,7 +7,13 @@
 - **Macro simulation:** render macros recursively against a mock `printer` object and follow
   `SET_GCODE_OFFSET`, `SAVE/RESTORE_GCODE_STATE`, `SET_DUAL_CARRIAGE`, `SET_GCODE_VARIABLE`,
   `SAVE_VARIABLE`. This found the `{-` bug ([pitfalls](klipper-jinja-pitfalls.md)).
-  The simulator is not in the repo yet ([open-points](open-points.md)).
+  The simulator is not in the repo yet ([open-points](open-points.md)). **Gap:** it didn't model Klipper's
+  command parser and missed the "digits in the middle of a name" bug. `check_klipper_config.py`
+  now covers that.
+- **Z offset:** `python3 tools/simulate_z_offset.py [config folder]` runs scenarios A–F (calibration
+  without saving, Mainsail panel, SAVE_Z_OFFSET, babystep on T1, unsaved babystep, T1 calibration with
+  a pending T0 value). Every "effective z_offset" line must show 1.800 (except the start value in D),
+  and there must be no `UNKNOWN COMMAND`.
 - **Klipper batch mode** (real parser) wasn't possible here: building the host MCU firmware from a
   cloned Klipper repo was blocked in the work environment.
 - **Bambu Studio CLI** (Flatpak):

@@ -248,5 +248,5 @@ else
 fi
 
 say "Done"
-info "Next: flash firmware.bin (if built), then run SV04_MENU in Mainsail and calibrate."
+info "Next: flash firmware.bin (if built), then run SOVOL_MENU in Mainsail and calibrate."
 info "Guide: $REPO/docs/Kalibrierung-Calibration.md"

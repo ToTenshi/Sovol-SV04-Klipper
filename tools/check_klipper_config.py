@@ -5,6 +5,8 @@
 - compiles every gcode template with Klipper's Jinja delimiters
 - checks variable_* values with ast.literal_eval (like Klipper)
 - warns about '{-' (Jinja whitespace control, not a minus sign)
+- applies Klipper's command parser to macro names, rename_existing and every
+  command line: digits in the MIDDLE of a name break it ("SV04_MENU" -> "SV04")
 - compares the two config folders (only printer.cfg/t5uid1.cfg may differ)
 
 Usage: python3 tools/check_klipper_config.py   (needs: pip install jinja2)
@@ -22,6 +24,21 @@ ROOT = Path(__file__).resolve().parent.parent / "config"
 FOLDERS = ["SV04-with-display", "Sv04-works-with origin-klipper"]
 ALLOWED_DIFF = {"printer.cfg", "t5uid1.cfg"}
 env = jinja2.Environment("{%", "%}", "{", "}")
+ARGS_R = re.compile(r"([A-Z_]+|[A-Z*])")   # klippy/gcode.py GCodeDispatch.args_r
+
+
+def klipper_command(line: str) -> str:
+    """The command name Klipper's parser extracts from a G-code line."""
+    parts = ARGS_R.split(line.upper())
+    return parts[1] + parts[2].strip() if len(parts) >= 3 else ""
+
+
+def check_name(name: str, where: str) -> int:
+    if klipper_command(name) != name.upper():
+        print(f"BAD NAME {where}: '{name}' is seen by Klipper as '{klipper_command(name)}' "
+              "(no digits in the middle of a command name)")
+        return 1
+    return 0
 
 
 def check_folder(folder: Path) -> int:
@@ -38,9 +55,21 @@ def check_folder(folder: Path) -> int:
             errors += 1
             continue
         for sec in cp.sections():
+            if sec.startswith("gcode_macro "):
+                errors += check_name(sec.split(None, 1)[1].strip(), f"{f.name} [{sec}]")
+            if cp.has_option(sec, "rename_existing"):
+                errors += check_name(cp.get(sec, "rename_existing"), f"{f.name} [{sec}] rename_existing")
             if not sec.startswith(("gcode_macro ", "delayed_gcode ", "homing_override")):
                 continue
             opts = dict(cp.items(sec))
+            for line in opts.get("gcode", "").splitlines():
+                line = line.strip()
+                token = line.split()[0] if line else ""
+                if not token or token.startswith(("{", "#", ";")) or "{" in token:
+                    continue
+                if re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", token) and klipper_command(token) != token.upper():
+                    print(f"BAD CALL {f.name} [{sec}]: '{token}' is seen by Klipper as '{klipper_command(token)}'")
+                    errors += 1
             tpl = opts.get("gcode", "")
             macros += 1
             if re.search(r"\{-(?!%)", tpl):
