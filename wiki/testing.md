@@ -10,7 +10,7 @@
   The simulator is not in the repo yet ([open-points](open-points.md)). **Gap:** it didn't model Klipper's
   command parser and missed the "digits in the middle of a name" bug. `check_klipper_config.py`
   now covers that.
-- **Z offset:** `python3 tools/simulate_z_offset.py [config folder]` runs scenarios A–F (calibration
+- **Z offset:** `python3 tools/simulate_z_offset.py [config folder]` runs scenarios A–G (calibration
   without saving, Mainsail panel, SAVE_Z_OFFSET, babystep on T1, unsaved babystep, T1 calibration with
   a pending T0 value). Every "effective z_offset" line must show 1.800 (except the start value in D),
   and there must be no `UNKNOWN COMMAND`.

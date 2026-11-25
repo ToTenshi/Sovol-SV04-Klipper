@@ -45,6 +45,10 @@ sollte der Hotend mechanisch nachjustiert werden.
 
 **Feinjustieren während des Drucks.** Beide Wege führen zum selben Ergebnis:
 
+- **Dialog:** **`Z_OFFSET_MENU`** (Panel „2 During print“ oder in `SOVOL_MENU`) öffnet einen Dialog mit
+  −0.05 / −0.01 / +0.01 / +0.05, dem aktuellen Wert und einem Speichern-Button. Einzelne Schritte
+  gehen auch mit `Z_OFFSET_DOWN STEP=0.01` / `Z_OFFSET_UP STEP=0.01`. Minus bedeutet näher ans Bett.
+  Insgesamt sind höchstens ±1 mm möglich.
 - **Mainsail-Standard:** Mit den Babystep-Buttons im Panel „Z-Offset“ nachstellen, bis die erste
   Schicht passt, dann den **Speichern-Button** im Panel drücken und im Dialog **SAVE_CONFIG** wählen.
 - **Makro:** Babystep wie oben, dann **`SAVE_Z_OFFSET`** (Panel „2 During print“).
@@ -144,6 +148,9 @@ First-time order: `Z_TILT_HOME` → `BED_LEVEL_SCREWS` → `Z_OFFSET_CALIBRATE` 
   Do the paper test, press **ACCEPT**, then **SAVE_CONFIG**.
 - **`CALIBRATE_Z_T1`**: the same paper test with T1. The result is stored as `dual_z_offset` in
   `variables.cfg` and applied on every tool change and in single T1 mode.
+- **Change the Z offset during the print:** `Z_OFFSET_MENU` (dialog with ±0.01/±0.05 and Save) or
+  `Z_OFFSET_DOWN` / `Z_OFFSET_UP STEP=…` (minus = closer to the bed, at most ±1 mm). Mainsail's own
+  babystep buttons do the same.
 - **`SAVE_Z_OFFSET`** and **Mainsail's Z offset save button** do the same thing: they store the
   babystep in the probe z_offset, without the T1 tool offset. SAVE_CONFIG is offered when the print
   finishes. A measured but unsaved z_offset is already used by the next print (`START_PRINT` sets

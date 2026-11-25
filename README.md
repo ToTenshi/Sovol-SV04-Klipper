@@ -18,6 +18,8 @@ Discord: https://discord.gg/22VQXyuq
 
 All changes are listed in the [CHANGELOG](CHANGELOG.md).
 
+- **Change the Z offset during the print:** `Z_OFFSET_MENU` (dialog with ±0.01/±0.05 and Save),
+  `Z_OFFSET_DOWN` / `Z_OFFSET_UP`.
 - **Z offset fixed:** a measured value is used by the next print even before SAVE_CONFIG. The Mainsail
   Z offset panel (babystep + save) and `SAVE_Z_OFFSET` do the same thing. Z is re-homed after the Z tilt.
 - **Renamed macros (important when updating):** `SOVOL_MENU` (was SV04_MENU), `CALIBRATE_Z_T1`,
@@ -141,7 +143,7 @@ not every internal macro:
 | Panel | Macros | Visible |
 |-------|--------|---------|
 | 1 SV04 | `SOVOL_MENU`, `LOAD_FILAMENT`, `UNLOAD_FILAMENT` | standby, paused |
-| 2 During print | `M600` (printing only), `SAVE_Z_OFFSET` | always |
+| 2 During print | `Z_OFFSET_MENU`, `Z_OFFSET_DOWN/UP` (babystep), `SAVE_Z_OFFSET`, `M600` (printing only) | always |
 | 3 Calibration | Z tilt, bed screws, Z offset T0/T1, PID, input shaper | standby |
 | 4 IDEX | `T0`, `T1`, Copy/Mirror mode, `CLEAN_NOZZLE` | standby |
 | 5 Settings | `SET_OFFSET_T1`, `INPUT_SHAPER_SET`, `PREHEAT60/80` | standby |

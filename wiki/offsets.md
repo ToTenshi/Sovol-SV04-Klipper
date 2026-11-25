@@ -19,6 +19,9 @@
 - `START_PRINT` homes Z again after `Z_TILT_ADJUST` (`G28 Z`), the same as `Z_TILT_HOME`/the calibration.
 - Edge case: Mainsail's *Reset* (`SET_GCODE_OFFSET Z=0`) **while T1 is active** also deletes the T1 share.
   The next T0 then subtracts it again (−dz until the next print start). Rare, not fixed.
+- **Babystep during the print:** `Z_OFFSET_UP/DOWN STEP=` → `_SOVOL_BABYSTEP` (`SET_GCODE_OFFSET Z_ADJUST
+  MOVE=1` like Mainsail, limit |total| ≤ 1 mm, the total is shown without `applied_z`). `MENU=1` reopens
+  `Z_OFFSET_MENU` (nested macro, so the new value is shown).
 - `Z_OFFSET_CALIBRATE`: heats, homes, Z tilt, `PROBE_CALIBRATE` in the bed centre (probe 25 mm behind
   the nozzle → nozzle at Y 125.5). After ACCEPT, a dialog with SAVE_CONFIG appears.
 - `CALIBRATE_Z_T1` refuses while a T0 z_offset is pending, because the kinematic zero still uses the

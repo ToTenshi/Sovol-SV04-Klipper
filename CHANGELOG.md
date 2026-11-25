@@ -22,6 +22,9 @@ newest version first.
   `config/SV04-with-display`.
 
 ### Added
+- Change the Z offset during the print: `Z_OFFSET_MENU` (Mainsail dialog with -0.05/-0.01/+0.01/+0.05,
+  current value, Save), `Z_OFFSET_DOWN` / `Z_OFFSET_UP STEP=…` (babystep with `MOVE=1`, limit ±1 mm).
+  In the macro group "2 During print" and in `SOVOL_MENU`.
 - Tidy macros in Mainsail: `install/mainsail_macro_groups.py` creates 5 macro panels (SV04, During print,
   Calibration, IDEX, Settings) with visibility per printer state, switches to expert mode, keeps your
   own groups, `--remove`. Included in `sv04-pi-setup.sh` (step 6, `--macros yes|no`).

@@ -2,6 +2,7 @@
 
 Newest entries first. One line per change: date – what – affected pages.
 
+- 2026-11-26 – Z offset during the print: Z_OFFSET_MENU / Z_OFFSET_UP / Z_OFFSET_DOWN, simulator scenario G – offsets, testing
 - 2026-11-26 – Real test "Z offset too high": pending z_offset was never active (SAVE_CONFIG broken, no restart), no G28 Z after Z tilt, babystep deleted at print start. Fixed: `_SOVOL_SYNC_Z_OFFSET`, `Z_OFFSET_APPLY_PROBE` wrapper, babystep kept, simulator – offsets, mainsail, klipper-jinja-pitfalls, testing
 - 2026-11-25 – Real test: `Unknown command:"_SV04"` → digits in the middle of names break Klipper's parser. All `SV04_…`/`_SV04_…` → `SOVOL_…`, `CALIBRATE_T1_Z` → `CALIBRATE_Z_T1`, `SET_T1_OFFSET` → `SET_OFFSET_T1`; checker extended – klipper-jinja-pitfalls, testing, all pages
 - 2026-11-25 – Macro groups had no effect in the real test (key `macros` missing in a fresh Mainsail) → read the whole namespace – mainsail

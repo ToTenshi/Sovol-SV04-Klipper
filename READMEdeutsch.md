@@ -18,6 +18,8 @@ Discord: https://discord.gg/22VQXyuq
 
 Alle Änderungen stehen im [CHANGELOG](CHANGELOG.md).
 
+- **Z-Offset während des Drucks ändern:** `Z_OFFSET_MENU` (Dialog mit ±0.01/±0.05 und Speichern),
+  `Z_OFFSET_DOWN` / `Z_OFFSET_UP`.
 - **Z-Offset korrigiert:** Ein gemessener Wert gilt schon beim nächsten Druck, auch vor SAVE_CONFIG.
   Das Mainsail-Panel „Z-Offset“ (Babystep + Speichern) und `SAVE_Z_OFFSET` machen dasselbe. Nach
   dem Z-Tilt wird Z neu gehomt.
@@ -148,7 +150,7 @@ noch diese Panels statt aller internen Makros:
 | Panel | Makros | Sichtbar |
 |-------|--------|----------|
 | 1 SV04 | `SOVOL_MENU`, `LOAD_FILAMENT`, `UNLOAD_FILAMENT` | Bereit, Pause |
-| 2 During print | `M600` (nur beim Drucken), `SAVE_Z_OFFSET` | immer |
+| 2 During print | `Z_OFFSET_MENU`, `Z_OFFSET_DOWN/UP` (Babystep), `SAVE_Z_OFFSET`, `M600` (nur beim Drucken) | immer |
 | 3 Calibration | Z-Tilt, Bettschrauben, Z-Offset T0/T1, PID, Input Shaper | Bereit |
 | 4 IDEX | `T0`, `T1`, Copy-/Mirror-Modus, `CLEAN_NOZZLE` | Bereit |
 | 5 Settings | `SET_OFFSET_T1`, `INPUT_SHAPER_SET`, `PREHEAT60/80` | Bereit |

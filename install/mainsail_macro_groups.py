@@ -26,8 +26,11 @@ GROUPS = [
         ("UNLOAD_FILAMENT", "group", {S, A}),
     ]),
     ("sv04-2-print", "2 During print", "warning", [
-        ("M600", "group", {P}),
+        ("Z_OFFSET_MENU", "primary", {S, P, A}),
+        ("Z_OFFSET_DOWN", "group", {S, P, A}),
+        ("Z_OFFSET_UP", "group", {S, P, A}),
         ("SAVE_Z_OFFSET", "group", {S, P, A}),
+        ("M600", "group", {P}),
     ]),
     ("sv04-3-calibration", "3 Calibration", "secondary", [
         ("Z_TILT_HOME", "group", {S}),
