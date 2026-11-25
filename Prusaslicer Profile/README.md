@@ -16,6 +16,8 @@ C:\Program Files\Prusa3D\PrusaSlicer\resources\profiles
 
 - than import the "PrusaSlicer_config_bundle_SV04_Klipper.ini" in PrusaSlicer
 
+- The printer presets upload to `sv04.local` (OctoPrint API from Moonraker, no API key). For another
+  address, use `--host 192.168.1.50` with the installer, or change it under *Printer Settings → Physical printer*.
 - Linux/macOS: the bed model path in the profiles points to the Windows folder above. Set it in
   *Printer Settings → General → Bed shape → Model* to `SV04/SV04.STL`, or leave it empty (only cosmetic).
 - COPY and MIRROR are limited to a 150 mm wide print area (left half of the bed), so the nozzles

@@ -19,6 +19,7 @@ directly from the code: background, decisions, pitfalls, test methods. It follow
 | [repo-structure.md](repo-structure.md) | Folders, which files belong together, the two config variants |
 | [printer-hardware.md](printer-hardware.md) | MCU, pins, bed, probe, limits, fans |
 | [idex.md](idex.md) | Dual carriage, COPY/MIRROR, START_PRINT logic |
+| [leveling.md](leveling.md) | Probe, Z tilt, bed mesh, bed screws, PREHEAT |
 | [offsets.md](offsets.md) | Z/XY offsets T0/T1, babysteps, calibration wizards |
 | [input-shaper.md](input-shaper.md) | Preset, per-carriage values, ADXL345, SAVE_CONFIG lock |
 | [klipper-jinja-pitfalls.md](klipper-jinja-pitfalls.md) | Klipper/Jinja traps, Mainsail prompts, fork vs. mainline |

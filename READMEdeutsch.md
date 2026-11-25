@@ -18,6 +18,10 @@ Discord: https://discord.gg/22VQXyuq
 
 Alle Änderungen stehen im [CHANGELOG](CHANGELOG.md).
 
+- **Mainsail in Bambu Studio:** Die Bambu-Profile sind mit `sv04.local` vorverbunden. Der Reiter
+  **Gerät** zeigt Mainsail, *Platte drucken* lädt hoch und startet den Druck. Andere Adresse: `--host` beim Installieren.
+- **Besseres Leveling:** genauere Messung, Bed Mesh bis an den Bettrand, Mesh-Fade, `BED_SCREWS_CHECK`.
+  `--update` aktualisiert jetzt auch die `printer.cfg` (Port, Chip und SAVE_CONFIG-Werte bleiben).
 - **Z-Offset während des Drucks ändern:** `Z_OFFSET_MENU` (Dialog mit ±0.01/±0.05 und Speichern),
   `Z_OFFSET_DOWN` / `Z_OFFSET_UP`.
 - **Z-Offset korrigiert:** Ein gemessener Wert gilt schon beim nächsten Druck, auch vor SAVE_CONFIG.
@@ -72,7 +76,9 @@ Alle Profile auf einmal installieren (Bambu Studio, Cura 4/5, PrusaSlicer). Schl
 | macOS / Linux | Im Terminal im Repo-Ordner: `./install/install-slicer-profiles.sh` |
 
 Das Skript findet die installierten Slicer (unter Linux auch Flatpak). Es kopiert die Drucker-,
-Prozess- und Filamentprofile sowie das 3D-Bettmodell. Details und manuelle Installation:
+Prozess- und Filamentprofile sowie das 3D-Bettmodell. Bambu Studio und PrusaSlicer laden direkt
+auf den Drucker hoch (`sv04.local`, andere Adresse mit `--host 192.168.1.50` bzw. unter Windows
+`-PrinterHost 192.168.1.50`). Bambu Studio zeigt Mainsail im Reiter **Gerät**. Details und manuelle Installation:
 [Bambu Studio](<Bambu Studio Profile/README.md>), [PrusaSlicer](<Prusaslicer Profile/README.md>),
 [Cura](<Cura Profile/cura readme.md>).
 
@@ -239,8 +245,11 @@ git -C ~/Sovol-SV04-Klipper pull
 ~/Sovol-SV04-Klipper/install/sv04-pi-setup.sh --update
 ```
 
-`--update` erneuert nur die Makro-Dateien. Eure `printer.cfg` (inklusive Block `#*# SAVE_CONFIG`)
-und `variables.cfg` bleiben erhalten, vorher wird eine Sicherung angelegt. Was sich geändert hat,
+`--update` erneuert die Makro-Dateien. Passt die Firmware auf dem Drucker nicht zum Klipper auf dem
+Pi (Klipper warnt dann mit „MCU 'mcu' has deprecated code … Recompiling and flashing is recommended“),
+bietet es an, die passende `firmware.bin` zu bauen. Die flasht ihr wie in Schritt 3. Bei der
+`printer.cfg` zeigt es die Änderungen und fragt nach. Euer serieller Port, Chip, die Includes und der Block `#*# SAVE_CONFIG` (Z-Offset, PID) bleiben
+erhalten. Die `variables.cfg` wird nicht angefasst, vorher wird eine Sicherung angelegt. Was sich geändert hat,
 steht im [CHANGELOG](CHANGELOG.md). Wer ohne Skript aktualisiert, überschreibt diese beiden Dateien nicht.
 
 

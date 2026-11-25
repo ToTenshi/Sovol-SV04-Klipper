@@ -148,7 +148,12 @@ def build_machines(vendor: Path) -> None:
             "auxiliary_fan": "0",
             "support_chamber_temp_control": "0",
             "support_air_filtration": "0",
+            # Upload via Moonraker (OctoPrint API, enabled in MainsailOS) and Mainsail in the "Device" tab.
+            # The installer replaces sv04.local with --host.
             "host_type": "octoprint",
+            "print_host": "sv04.local",
+            "print_host_webui": "http://sv04.local",
+            "printhost_apikey": "",
         })
         write("machine", name, finish(cfg, "machine", name, "printer_settings_id"))
 

@@ -15,6 +15,10 @@
   `Bambu Studio Profile/tools/build_profiles.py` from the Voron profiles that ship with Bambu Studio. Only edit the values in the script.
 - Placeholders: `nozzle_temperature_initial_layer[n]` (index beyond the end falls back to `[0]`),
   `bed_temperature_initial_layer_single`, `initial_extruder`. Dual: `change_filament_gcode = T[next_extruder]`.
+- **Connection:** `host_type octoprint`, `print_host sv04.local`, `print_host_webui http://sv04.local`
+  (Device tab = Mainsail, field "Device UI" in the connection dialog), `printhost_apikey ""`. Moonraker
+  provides the OctoPrint API through `[octoprint_compat]`, which is in the MainsailOS default `moonraker.conf`
+  ([source](sources/2026-11-26_bambu-mainsail.md)). Installers replace `sv04.local` with `--host`.
 - `travel_short_distance_acceleration` (Bambu default 250) slows short travel moves. This is intentional, left unchanged.
 - Bed model: the installer adds `bed_custom_model` (absolute path) only to 300 mm presets.
 

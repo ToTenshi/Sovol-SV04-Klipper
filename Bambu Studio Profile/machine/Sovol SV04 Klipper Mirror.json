@@ -107,6 +107,8 @@
         "0.4"
     ],
     "nozzle_type": "brass",
+    "print_host": "sv04.local",
+    "print_host_webui": "http://sv04.local",
     "printable_area": [
         "0x0",
         "150x0",
@@ -118,6 +120,7 @@
     "printer_settings_id": "Sovol SV04 Klipper Mirror",
     "printer_technology": "FFF",
     "printer_variant": "0.4",
+    "printhost_apikey": "",
     "retract_before_wipe": [
         "0%"
     ],

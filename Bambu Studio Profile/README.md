@@ -39,9 +39,16 @@ Wenn du in Bambu Studio angemeldet bist, nimm statt `default` den Ordner mit dei
 
 ## Verbindung zu Mainsail/Moonraker
 
-Klicke neben dem Druckerprofil auf das WLAN-Symbol. Wähle als Host-Typ **OctoPrint**
-(Moonraker emuliert die OctoPrint-API), trage als Adresse die IP bzw. den Hostnamen des Raspberry Pi ein und
-lass den API-Key leer. Danach kannst du direkt aus Bambu Studio hochladen und drucken.
+Die SV04-Profile sind schon fertig verbunden: Host-Typ **OctoPrint** (Moonraker emuliert die
+OctoPrint-API, in MainsailOS ab Werk aktiv), Adresse `sv04.local`, kein API-Key.
+
+- **Mainsail in Bambu Studio:** Der Reiter **Gerät** (Device) zeigt Mainsail direkt in Bambu Studio
+  an (Einstellung *Device UI* = `http://sv04.local`). Du kannst dort also den Druck überwachen,
+  Babysteps setzen und Makros starten, ohne den Browser zu öffnen.
+- **Drucken:** *Platte drucken* lädt den G-Code hoch und startet ihn, *Senden* lädt nur hoch.
+- **Andere Adresse** (anderer Hostname oder IP): beim Installieren `--host 192.168.1.50` mitgeben
+  (Windows: `-PrinterHost 192.168.1.50`) oder in Bambu Studio neben dem Druckerprofil auf das
+  WLAN-Symbol klicken und *Hostname* und *Device UI* ändern.
 
 ## Modi
 
@@ -80,8 +87,10 @@ third-party vendor has to be enabled.
   (Windows) or run `./install/install-slicer-profiles.sh bambu` (macOS/Linux).
 - **Manual:** *File → Import → Import Configs…* and select all `.json` files from
   `machine`, `process` and `filament`.
-- **Upload to Mainsail:** click the Wi-Fi icon next to the printer and choose host type
-  *OctoPrint* (Moonraker emulates it). Enter the Pi's IP and leave the API key empty.
+- **Mainsail inside Bambu Studio:** the presets are already connected (host type OctoPrint, which
+  Moonraker emulates, address `sv04.local`, no API key). The **Device** tab shows Mainsail (*Device UI*),
+  and *Print plate* uploads and starts the job. For another address, use `--host 192.168.1.50` when
+  installing, or change it with the Wi-Fi icon next to the printer.
 - **Copy/Mirror** limit the print area to 150 × 300 mm (left half). The bed mesh covers both copies.
 - **Dual:** filament 1 = T0 (left), filament 2 = T1 (right). The prime tower is off by default.
 - The presets need the current `Start_End_Macro.cfg` (`START_PRINT`) from `config/`.

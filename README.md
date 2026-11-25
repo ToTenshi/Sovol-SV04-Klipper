@@ -18,6 +18,10 @@ Discord: https://discord.gg/22VQXyuq
 
 All changes are listed in the [CHANGELOG](CHANGELOG.md).
 
+- **Mainsail inside Bambu Studio:** the Bambu profiles are pre-connected to `sv04.local`. The **Device**
+  tab shows Mainsail, and *Print plate* uploads and starts the job. Other address: `--host` when installing.
+- **Better leveling:** more accurate probing, bed mesh up to the bed edges, mesh fade, `BED_SCREWS_CHECK`.
+  `--update` now also updates `printer.cfg` (port, chip and SAVE_CONFIG values are kept).
 - **Change the Z offset during the print:** `Z_OFFSET_MENU` (dialog with ±0.01/±0.05 and Save),
   `Z_OFFSET_DOWN` / `Z_OFFSET_UP`.
 - **Z offset fixed:** a measured value is used by the next print even before SAVE_CONFIG. The Mainsail
@@ -68,7 +72,9 @@ Install all profiles at once (Bambu Studio, Cura 4/5, PrusaSlicer). Close the sl
 | macOS / Linux | In a terminal in the repo folder: `./install/install-slicer-profiles.sh` |
 
 The script finds the installed slicers (on Linux also Flatpak) and copies the printer, process and
-filament profiles plus the 3D bed model. Details and manual installation:
+filament profiles plus the 3D bed model. Bambu Studio and PrusaSlicer upload directly to the printer
+(`sv04.local`, or another address with `--host 192.168.1.50` / Windows `-PrinterHost 192.168.1.50`).
+Bambu Studio shows Mainsail in its **Device** tab. Details and manual installation:
 [Bambu Studio](<Bambu Studio Profile/README.md>), [PrusaSlicer](<Prusaslicer Profile/README.md>),
 [Cura](<Cura Profile/cura readme.md>).
 
@@ -231,8 +237,11 @@ git -C ~/Sovol-SV04-Klipper pull
 ~/Sovol-SV04-Klipper/install/sv04-pi-setup.sh --update
 ```
 
-`--update` only refreshes the macro files. Your `printer.cfg` (including the `#*# SAVE_CONFIG`
-block) and `variables.cfg` are kept, and a backup is made beforehand. What changed is listed in the
+`--update` refreshes the macro files. If the firmware on the printer doesn't match Klipper on the Pi
+(Klipper then warns "MCU 'mcu' has deprecated code … Recompiling and flashing is recommended"), it
+offers to build the matching `firmware.bin`. Flash it as in step 3. For `printer.cfg` it shows the changes and asks first. Your
+serial port, chip, includes and the `#*# SAVE_CONFIG` block (Z offset, PID) are kept. `variables.cfg`
+is not touched, and a backup is made beforehand. What changed is listed in the
 [CHANGELOG](CHANGELOG.md). If you update without the script, don't overwrite these two files.
 
 # Using SSH

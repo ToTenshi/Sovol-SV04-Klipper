@@ -3,12 +3,15 @@
   Installiert die SV04-Slicer-Profile unter Windows.
 
   Easiest: double-click install-slicer-profiles-windows.cmd
-  Or:      powershell -ExecutionPolicy Bypass -File install-slicer-profiles.ps1 [bambu] [cura] [prusa]
+  Or:      powershell -ExecutionPolicy Bypass -File install-slicer-profiles.ps1 [-PrinterHost 192.168.1.50] [bambu] [cura] [prusa]
 
   Supported: Bambu Studio, Cura 4/5, PrusaSlicer. Close the slicers before running.
   Works with Windows PowerShell 5.1 (preinstalled) and PowerShell 7.
 #>
-param([Parameter(ValueFromRemainingArguments = $true)][string[]]$Only)
+param(
+    [string]$PrinterHost = 'sv04.local',
+    [Parameter(ValueFromRemainingArguments = $true)][string[]]$Only
+)
 
 $ErrorActionPreference = 'Stop'
 if (-not $Only -or $Only.Count -eq 0) { $Only = @('bambu', 'cura', 'prusa') }
@@ -50,9 +53,10 @@ function Install-Bambu {
                 Copy-Item -LiteralPath $f.FullName -Destination (Join-Path $dst $f.Name) -Force
             }
         }
-        # 3D bed model only for the presets with the full 300 mm bed
+        # printer address for upload / Mainsail page in the "Device" tab; bed model for 300 mm presets
         foreach ($f in Get-ChildItem -LiteralPath (Join-Path $user.FullName 'machine') -Filter 'Sovol SV04 Klipper *.json') {
-            $text = [System.IO.File]::ReadAllText($f.FullName)
+            $text = [System.IO.File]::ReadAllText($f.FullName).Replace('sv04.local', $PrinterHost)
+            [System.IO.File]::WriteAllText($f.FullName, $text, $Utf8)
             if ($text.Contains('"300x0"') -and -not $text.Contains('"bed_custom_model"')) {
                 $text = '{' + "`n" + '    "bed_custom_model": "' + $stlJson + '",' + $text.Substring($text.IndexOf('{') + 1)
                 [System.IO.File]::WriteAllText($f.FullName, $text, $Utf8)
@@ -121,6 +125,7 @@ function Install-Prusa {
         }
         elseif ($out) {
             if ($line -match '^bed_custom_model = .') { $line = 'bed_custom_model = ' + $model }
+            if ($out -like '*\printer\*' -and $line.StartsWith('print_host = ')) { $line = 'print_host = ' + $PrinterHost }
             $buffer.Add($line)
         }
     }
@@ -135,6 +140,7 @@ if ($Only -contains 'prusa') { Install-Prusa }
 Write-Host ''
 if ($script:Installed -gt 0) {
     Write-Host "Done ($($script:Installed) target(s)). Start the slicer and choose a 'SV04' printer."
+    Write-Host "Printer address for upload / Mainsail: $PrinterHost (change with -PrinterHost)"
 } else {
     Write-Host 'Nothing installed - no supported slicer found.'
     exit 1

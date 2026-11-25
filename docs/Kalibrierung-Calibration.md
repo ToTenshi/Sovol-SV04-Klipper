@@ -11,7 +11,11 @@ hinzufügen. Dann liegen sie als Buttons auf dem Dashboard.
 ## Reihenfolge bei der Ersteinrichtung
 
 1. **`Z_TILT_HOME`**: Homing und Ausrichten der beiden Z-Motoren.
-2. **`BED_LEVEL_SCREWS`**: Misst die vier Bettschrauben mit dem BLTouch. Mainsail zeigt danach
+2. **`BED_SCREWS_CHECK`** (einmalig): fährt die Sonde nacheinander über die vier Bettschrauben.
+   Steht sie nicht über einer Schraube, stimmen die Positionen in `[screws_tilt_adjust]` nicht.
+   Dann die **Düse** auf die Schraubenmitte fahren, X/Y notieren und eintragen (Y minus 25 mm,
+   weil die Sonde 25 mm hinter der Düse sitzt).
+   **`BED_LEVEL_SCREWS`**: Misst die vier Bettschrauben mit dem BLTouch. Mainsail zeigt danach
    an, wie weit jede Schraube gedreht werden muss (z. B. „CW 00:15“ = eine Viertelumdrehung im
    Uhrzeigersinn). So oft wiederholen, bis alle Werte nahe 00:00 liegen.
 3. **`Z_OFFSET_CALIBRATE`**: Z-Offset der linken Düse (T0), siehe unten.

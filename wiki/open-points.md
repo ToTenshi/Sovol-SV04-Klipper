@@ -12,4 +12,6 @@
 | Macro simulator | Z offset part is in the repo (`tools/simulate_z_offset.py`), IDEX/shaper scenarios not yet |
 | Mainsail *Reset* while T1 is active | Also deletes the T1 share (see offsets) |
 | Discord link | May expire, only the maintainer can create a permanent one |
+| Bed screw positions | `[screws_tilt_adjust]` (probe over 31/0, 270/0, 270/240, 31/240) doesn't match `[bed_screws]` (nozzle over 25/35, 295/35, 295/295, 25/295). Check on the printer with `BED_SCREWS_CHECK` |
+| Mainsail in the Bambu Device tab | Keys are set, not checked in the GUI |
 | Licence | The original repo has no licence. Clarify with Bully85 before publishing standalone |

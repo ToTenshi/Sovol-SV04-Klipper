@@ -16,9 +16,10 @@
 #   6. arrange the macros in Mainsail as tidy groups (panels)
 #   7. restart Klipper
 #
-# Options: --update          only refresh the macro files, keep printer.cfg
+# Options: --update          refresh the macro files, offer to update printer.cfg (keeps your values)
 #          --variant original|display   --chip stm32|gd32
 #          --firmware yes|no --klipperscreen yes|no --macros yes|no
+#          --printer-cfg yes|no   update an existing SV04 printer.cfg (keeps port, chip, SAVE_CONFIG)
 #          --yes (no questions)
 set -euo pipefail
 
@@ -30,7 +31,7 @@ MOONRAKER_URL="${SV04_MOONRAKER_URL:-http://localhost:7125}"
 FORK_URL="${SV04_FORK_URL:-https://github.com/Bully85/klipper}"
 MAINLINE_URL="${SV04_MAINLINE_URL:-https://github.com/Klipper3d/klipper}"
 
-VARIANT="" CHIP="" FIRMWARE="" KSCREEN="" MACROS="" UPDATE=0 YES=0 SWITCHED=0
+VARIANT="" CHIP="" FIRMWARE="" KSCREEN="" MACROS="" PRINTERCFG="" UPDATE=0 YES=0 SWITCHED=0
 while [ $# -gt 0 ]; do
     case "$1" in
         --update) UPDATE=1 ;;
@@ -39,8 +40,9 @@ while [ $# -gt 0 ]; do
         --firmware) FIRMWARE="$2"; shift ;;
         --klipperscreen) KSCREEN="$2"; shift ;;
         --macros) MACROS="$2"; shift ;;
+        --printer-cfg) PRINTERCFG="$2"; shift ;;
         --yes|-y) YES=1 ;;
-        -h|--help) sed -n '2,25p' "$0"; exit 0 ;;
+        -h|--help) sed -n '2,26p' "$0"; exit 0 ;;
         *) echo "Unknown option $1"; exit 1 ;;
     esac
     shift
@@ -123,7 +125,21 @@ for f in "$SRC"/*; do
             if [ -f "$CONFIG/$name" ]; then info "keep    $name (your offsets)"; continue; fi ;;
         printer.cfg)
             if [ -f "$CONFIG/$name" ] && grep -q '^\[dual_carriage\]' "$CONFIG/$name"; then
-                info "keep    $name (already an SV04 config - compare with the repo for new options)"
+                # bring an existing SV04 printer.cfg up to date: serial port, chip, includes
+                # and the SAVE_CONFIG block (z_offset, PID ...) are kept
+                if python3 "$REPO/install/merge_printer_cfg.py" "$f" "$CONFIG/$name" > /tmp/sv04_printer_cfg.diff; then
+                    info "keep    $name (up to date)"
+                else
+                    info "The repo has a newer printer.cfg. Changes (- yours, + new):"
+                    sed 's/^/        /' /tmp/sv04_printer_cfg.diff
+                    [ -n "$PRINTERCFG" ] || PRINTERCFG=$(ask "Update printer.cfg? Serial port, chip, includes and SAVE_CONFIG block are kept (yes/no)" yes)
+                    if [ "$PRINTERCFG" = yes ]; then
+                        python3 "$REPO/install/merge_printer_cfg.py" "$f" "$CONFIG/$name" --write | sed 's/^/    /'
+                    else
+                        info "keep    $name (not updated)"
+                    fi
+                fi
+                rm -f /tmp/sv04_printer_cfg.diff
                 continue
             fi
             [ $UPDATE = 1 ] && { info "skip    $name (--update)"; continue; }
@@ -175,7 +191,27 @@ if [ $FRESH_PRINTER_CFG = 1 ]; then
 fi
 
 # ------------------------------------------------------------- 4. firmware --
-[ -n "$FIRMWARE" ] || { [ $UPDATE = 1 ] && FIRMWARE=no || FIRMWARE=$(ask "Build the printer firmware now? (yes/no)" yes); }
+# Compare the firmware on the printer with the Klipper version on the Pi (via Moonraker).
+# After a Klipper update or a switch fork <-> original they differ, and Klipper warns
+# "MCU 'mcu' has deprecated code ... Recompiling and flashing is recommended".
+FW_MISMATCH=0
+versions=$(curl -fsS "$MOONRAKER_URL/printer/objects/query?mcu" 2>/dev/null | python3 -c '
+import json, sys
+try:
+    print(json.load(sys.stdin)["result"]["status"]["mcu"]["mcu_version"])
+except Exception:
+    pass' 2>/dev/null || true)
+host_version=$(git -C "$KLIPPER" describe --always --tags --long --dirty 2>/dev/null || true)
+if [ -n "$versions" ] && [ -n "$host_version" ] && [ "${versions%-dirty}" != "${host_version%-dirty}" ] && [ $SWITCHED = 0 ]; then
+    FW_MISMATCH=1
+    warn "Printer firmware ($versions) does not match Klipper on the Pi ($host_version) - rebuild and flash it"
+fi
+[ $SWITCHED = 1 ] && FW_MISMATCH=1   # new Klipper code always needs new printer firmware
+if [ -z "$FIRMWARE" ]; then
+    if [ $FW_MISMATCH = 1 ]; then FIRMWARE=$(ask "Build the matching printer firmware now? (yes/no)" yes)
+    elif [ $UPDATE = 1 ]; then FIRMWARE=no
+    else FIRMWARE=$(ask "Build the printer firmware now? (yes/no)" yes); fi
+fi
 if [ "$FIRMWARE" = yes ]; then
     say "Building the printer firmware (STM32F103, 28KiB bootloader, USART1 PA10/PA9, 115200 baud)"
     {

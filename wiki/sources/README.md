@@ -13,4 +13,5 @@ Immutable raw material that the wiki pages are based on. Rules:
 | [2026-11-24_klipper-source-notes.md](2026-11-24_klipper-source-notes.md) | Findings from the Klipper source (fork and mainline) |
 | [2026-11-24_bambu-cli-tests.md](2026-11-24_bambu-cli-tests.md) | Results of the Bambu Studio CLI tests |
 | [2026-11-25_mainsail-source-notes.md](2026-11-25_mainsail-source-notes.md) | How Mainsail stores macro groups and filters macros |
+| [2026-11-26_bambu-mainsail.md](2026-11-26_bambu-mainsail.md) | Bambu Studio connection keys, octoprint_compat in MainsailOS |
 | [2026-11-25_web-research.md](2026-11-25_web-research.md) | Web research: input shaper, Mainsail without KIAUH, KlipperScreen |

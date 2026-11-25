@@ -2,6 +2,9 @@
 
 Newest entries first. One line per change: date – what – affected pages.
 
+- 2026-11-26 – Real test: MCU v0.11 (fork firmware) vs host v0.14 → "deprecated code / STEPPER_STEP_BOTH_EDGE". The Pi script now compares the versions and offers the firmware – installation
+- 2026-11-26 – Mainsail in Bambu Studio (print_host/print_host_webui), PrusaSlicer upload address, installer --host – slicers, installation
+- 2026-11-26 – Leveling review: probe 5 mm/s + samples_tolerance, mesh to the edges + fade, BED_MESH passthrough, PREHEAT, BED_SCREWS_CHECK, printer.cfg merge on --update – leveling, installation
 - 2026-11-26 – Z offset during the print: Z_OFFSET_MENU / Z_OFFSET_UP / Z_OFFSET_DOWN, simulator scenario G – offsets, testing
 - 2026-11-26 – Real test "Z offset too high": pending z_offset was never active (SAVE_CONFIG broken, no restart), no G28 Z after Z tilt, babystep deleted at print start. Fixed: `_SOVOL_SYNC_Z_OFFSET`, `Z_OFFSET_APPLY_PROBE` wrapper, babystep kept, simulator – offsets, mainsail, klipper-jinja-pitfalls, testing
 - 2026-11-25 – Real test: `Unknown command:"_SV04"` → digits in the middle of names break Klipper's parser. All `SV04_…`/`_SV04_…` → `SOVOL_…`, `CALIBRATE_T1_Z` → `CALIBRATE_Z_T1`, `SET_T1_OFFSET` → `SET_OFFSET_T1`; checker extended – klipper-jinja-pitfalls, testing, all pages

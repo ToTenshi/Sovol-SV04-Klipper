@@ -35,6 +35,7 @@ GROUPS = [
     ("sv04-3-calibration", "3 Calibration", "secondary", [
         ("Z_TILT_HOME", "group", {S}),
         ("BED_LEVEL_SCREWS", "group", {S}),
+        ("BED_SCREWS_CHECK", "group", {S}),
         ("Z_OFFSET_CALIBRATE", "primary", {S}),
         ("CALIBRATE_Z_T1", "primary", {S}),
         ("PID_TUNE_BED", "warning", {S}),
@@ -52,6 +53,7 @@ GROUPS = [
     ("sv04-5-settings", "5 Settings", "secondary", [
         ("SET_OFFSET_T1", "group", {S}),
         ("INPUT_SHAPER_SET", "group", {S}),
+        ("PREHEAT", "group", {S}),
         ("PREHEAT60", "group", {S}),
         ("PREHEAT80", "group", {S}),
     ]),

@@ -22,6 +22,16 @@ newest version first.
   `config/SV04-with-display`.
 
 ### Added
+- `sv04-pi-setup.sh` compares the printer firmware (`mcu_version` via Moonraker) with Klipper on the Pi
+  (`git describe`). If they differ, or after a switch fork ↔ original, it offers to build the matching
+  firmware, also with `--update`. Real case: "MCU 'mcu' has deprecated code (… missing feature
+  'STEPPER_STEP_BOTH_EDGE')" with MCU v0.11.0-261 (fork) and host v0.14.0.
+- Mainsail inside Bambu Studio: the Bambu presets contain `print_host` `sv04.local` and
+  `print_host_webui` `http://sv04.local` (Device tab = Mainsail), upload via the OctoPrint API of
+  Moonraker (`[octoprint_compat]` is enabled in MainsailOS). PrusaSlicer printers upload to `sv04.local`
+  (placeholder `IP_Printer:PORT` / API key `12345` removed). Installers: `--host` / `-PrinterHost`.
+- `BED_SCREWS_CHECK`: moves the probe over each configured bed screw in turn (check the
+  `[screws_tilt_adjust]` positions, which don't match `[bed_screws]`).
 - Change the Z offset during the print: `Z_OFFSET_MENU` (Mainsail dialog with -0.05/-0.01/+0.01/+0.05,
   current value, Save), `Z_OFFSET_DOWN` / `Z_OFFSET_UP STEP=…` (babystep with `MOVE=1`, limit ±1 mm).
   In the macro group "2 During print" and in `SOVOL_MENU`.
@@ -48,6 +58,15 @@ newest version first.
 - `.gitattributes`: CRLF for `.cmd`/`.ps1`, LF for `.sh`.
 
 ### Changed
+- Leveling: BLTouch measures at 5 mm/s (was 10) with `samples_tolerance` 0.025 / 3 retries. The bed mesh
+  covers the bed edges (`mesh_min 10,30`, `mesh_max 290,290`, was 10,45/290,270) and fades out over
+  1–10 mm (`fade_start/fade_end`). `BED_MESH_CALIBRATE` passes Mainsail's parameters (e.g. `PROFILE=`) through.
+- `PREHEAT BED= NOZZLE=` (heat, home, Z tilt) replaces `PREHEATANDMESH`, which created stored mesh
+  profiles and a pending SAVE_CONFIG (unused, because START_PRINT measures the mesh every time).
+  `PREHEAT60/80` and `PREHEATANDMESH` call it.
+- `sv04-pi-setup.sh --update` now also brings an existing `printer.cfg` up to date
+  (`install/merge_printer_cfg.py`): serial port, STM32/GD32, includes and the SAVE_CONFIG block are kept,
+  other changes are shown as a diff first (`--printer-cfg yes|no`).
 - `max_accel` 1000 → 1500 mm/s² (deceleration limit now Klipper's default = half). Cura 600 → 1500 mm/s².
   Bambu Studio: accelerations to 1500 and speeds raised slightly (inner walls 80, infill 100, travel 200 mm/s).
 - `adxl345.cfg` no longer needs the `gcode_shell_command` extension or the fixed `/home/pi` path.

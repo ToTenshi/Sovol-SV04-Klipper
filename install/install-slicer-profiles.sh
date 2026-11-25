@@ -4,6 +4,7 @@
 #
 #   ./install/install-slicer-profiles.sh            all slicers that are found
 #   ./install/install-slicer-profiles.sh bambu cura prusa   only these
+#   ./install/install-slicer-profiles.sh --host 192.168.1.50  other printer address (default sv04.local)
 #
 # Supported: Bambu Studio, Cura 4/5, PrusaSlicer (native and Flatpak on Linux).
 # Close the slicers before running. Works with the bash 3.2 that ships with macOS.
@@ -11,7 +12,16 @@ set -euo pipefail
 
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
 OS="${SV04_OS:-$(uname -s)}"            # SV04_OS only for tests
-WANT="${*:-bambu cura prusa}"
+HOST="sv04.local"
+ARGS=()
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --host) HOST="$2"; shift ;;
+        *) ARGS+=("$1") ;;
+    esac
+    shift
+done
+if [ ${#ARGS[@]} -gt 0 ]; then WANT="${ARGS[*]}"; else WANT="bambu cura prusa"; fi
 INSTALLED=0
 
 say()  { printf '%s\n' "$*"; }
@@ -58,8 +68,12 @@ install_bambu() {
                 mkdir -p "$user/$kind"
                 cp "$src/$kind"/*.json "$user/$kind/"
             done
-            # 3D bed model only for the presets with the full 300 mm bed
+            # printer address for upload and the Mainsail page in the "Device" tab
             local f
+            for f in "$user/machine/Sovol SV04 Klipper "*.json; do
+                sed "s|sv04\.local|$HOST|g" "$f" > "$f.tmp" && mv "$f.tmp" "$f"
+            done
+            # 3D bed model only for the presets with the full 300 mm bed
             for f in "$user/machine/Sovol SV04 Klipper "*.json; do
                 if grep -q '"300x0"' "$f" && ! grep -q '"bed_custom_model"' "$f"; then
                     sed "1a\\
@@ -109,7 +123,7 @@ install_prusa() {
         say "PrusaSlicer -> $base"
         mkdir -p "$base/printer" "$base/print" "$base/filament" "$base/sv04"
         cp "$src/SV04/SV04.STL" "$base/sv04/SV04.STL"
-        awk -v base="$base" -v model="$base/sv04/SV04.STL" '
+        awk -v base="$base" -v model="$base/sv04/SV04.STL" -v host="$HOST" '
             function close_out() { if (out != "") close(out); out = "" }
             /^\[(printer|print|filament):/ {
                 close_out()
@@ -122,6 +136,7 @@ install_prusa() {
             /^\[/ { close_out(); next }
             out != "" {
                 if ($0 ~ /^bed_custom_model = ./) $0 = "bed_custom_model = " model
+                if (kind == "printer" && $0 ~ /^print_host = /) $0 = "print_host = " host
                 print > out
             }
             END { close_out() }
@@ -138,6 +153,7 @@ want prusa && install_prusa
 say ""
 if [ "$INSTALLED" -gt 0 ]; then
     say "Done ($INSTALLED target(s)). Start the slicer and choose a 'SV04' printer."
+    say "Printer address for upload / Mainsail: $HOST (change with --host)"
 else
     say "Nothing installed - no supported slicer found."
     exit 1
