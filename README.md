@@ -20,7 +20,8 @@ All changes are listed in the [CHANGELOG](CHANGELOG.md).
 
 - **Mainsail inside Bambu Studio:** the Bambu profiles are pre-connected to `sv04.local`. The **Device**
   tab shows Mainsail, and *Print plate* uploads and starts the job. Other address: `--host` when installing.
-- **Better leveling:** more accurate probing, bed mesh up to the bed edges, mesh fade, `BED_SCREWS_CHECK`.
+- **Better leveling:** more accurate probing, bed mesh up to the bed edges, mesh fade, `BED_SCREWS_CHECK`,
+  `PROBE_CHECK` (how repeatable is the BLTouch?).
   `--update` now also updates `printer.cfg` (port, chip and SAVE_CONFIG values are kept).
 - **Change the Z offset during the print:** `Z_OFFSET_MENU` (dialog with ±0.01/±0.05 and Save),
   `Z_OFFSET_DOWN` / `Z_OFFSET_UP`.

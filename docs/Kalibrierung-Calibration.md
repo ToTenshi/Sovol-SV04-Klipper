@@ -11,7 +11,11 @@ hinzufügen. Dann liegen sie als Buttons auf dem Dashboard.
 ## Reihenfolge bei der Ersteinrichtung
 
 1. **`Z_TILT_HOME`**: Homing und Ausrichten der beiden Z-Motoren.
-2. **`BED_SCREWS_CHECK`** (einmalig): fährt die Sonde nacheinander über die vier Bettschrauben.
+2. **`PROBE_CHECK`** (optional): misst die Bettmitte zehnmal mit dem BLTouch und zeigt, wie stark
+   die Werte streuen. Bis 0,025 mm Spannweite ist alles gut. Darüber sitzt der BLTouch oder sein
+   Halter locker, oder Stift bzw. Kabel haben ein Problem. Schwankt der Z-Offset von Druck zu Druck,
+   ist das der erste Test. Mit `PROBE_CHECK SAMPLES=20 BED_TEMP=60` misst es öfter und bei warmem Bett.
+   **`BED_SCREWS_CHECK`** (einmalig): fährt die Sonde nacheinander über die vier Bettschrauben.
    Steht sie nicht über einer Schraube, stimmen die Positionen in `[screws_tilt_adjust]` nicht.
    Dann die **Düse** auf die Schraubenmitte fahren, X/Y notieren und eintragen (Y minus 25 mm,
    weil die Sonde 25 mm hinter der Düse sitzt).

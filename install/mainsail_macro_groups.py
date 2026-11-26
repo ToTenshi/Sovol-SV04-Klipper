@@ -36,6 +36,7 @@ GROUPS = [
         ("Z_TILT_HOME", "group", {S}),
         ("BED_LEVEL_SCREWS", "group", {S}),
         ("BED_SCREWS_CHECK", "group", {S}),
+        ("PROBE_CHECK", "group", {S}),
         ("Z_OFFSET_CALIBRATE", "primary", {S}),
         ("CALIBRATE_Z_T1", "primary", {S}),
         ("PID_TUNE_BED", "warning", {S}),

@@ -22,6 +22,9 @@ newest version first.
   `config/SV04-with-display`.
 
 ### Added
+- `PROBE_CHECK SAMPLES=10 BED_TEMP=0`: measures the bed centre several times with the BLTouch (`PROBE
+  SAMPLES=1`, value from `printer.probe.last_z_result`), shows range, standard deviation and a rating
+  in a Mainsail dialog. In the calibration group and in `SOVOL_MENU`.
 - `sv04-pi-setup.sh` compares the printer firmware (`mcu_version` via Moonraker) with Klipper on the Pi
   (`git describe`). If they differ, or after a switch fork ↔ original, it offers to build the matching
   firmware, also with `--update`. Real case: "MCU 'mcu' has deprecated code (… missing feature

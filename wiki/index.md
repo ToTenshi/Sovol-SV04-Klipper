@@ -27,6 +27,7 @@ directly from the code: background, decisions, pitfalls, test methods. It follow
 | [mainsail.md](mainsail.md) | Macro groups, how Mainsail stores settings, prompts |
 | [installation.md](installation.md) | MainsailOS, `sv04-pi-setup.sh`, slicer installers, OS paths |
 | [testing.md](testing.md) | How to test without a printer |
+| [hardware-ideas.md](hardware-ideas.md) | Possible upgrades (load cell, Eddy …) and why sensorless Z doesn't work |
 | [open-points.md](open-points.md) | Untested or open items |
 
 ## Operations

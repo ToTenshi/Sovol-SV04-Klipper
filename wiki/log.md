@@ -2,6 +2,7 @@
 
 Newest entries first. One line per change: date – what – affected pages.
 
+- 2026-11-26 – PROBE_CHECK (BLTouch repeatability); hardware ideas page (load cell as an upgrade, sensorless Z ruled out) – leveling, hardware-ideas
 - 2026-11-26 – Real test: MCU v0.11 (fork firmware) vs host v0.14 → "deprecated code / STEPPER_STEP_BOTH_EDGE". The Pi script now compares the versions and offers the firmware – installation
 - 2026-11-26 – Mainsail in Bambu Studio (print_host/print_host_webui), PrusaSlicer upload address, installer --host – slicers, installation
 - 2026-11-26 – Leveling review: probe 5 mm/s + samples_tolerance, mesh to the edges + fade, BED_MESH passthrough, PREHEAT, BED_SCREWS_CHECK, printer.cfg merge on --update – leveling, installation

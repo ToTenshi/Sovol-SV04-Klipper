@@ -10,6 +10,12 @@ Every print: `START_PRINT` = G28 → Z_TILT_ADJUST → **G28 Z** → adaptive `B
   `samples_tolerance: 0.025` + `samples_tolerance_retries: 3`: measurements that disagree are repeated
   instead of being averaged silently. Directly improves the repeatability of homing/Z offset.
 
+- **`PROBE_CHECK`:** own loop instead of `PROBE_ACCURACY`, because its result only appears as console
+  text and is not in the status. `PROBE SAMPLES=1` → `_SOVOL_PROBE_RECORD` (nested, reads
+  `printer.probe.last_z_result` after the measurement) → list in a macro variable → `_SOVOL_PROBE_REPORT`
+  (range, stdev with `namespace` + `** 0.5`). Rating: ≤ 0.010 excellent, ≤ 0.025 good (BLTouch normal),
+  ≤ 0.050 acceptable, otherwise mechanics.
+
 ## Z tilt (`[z_tilt]`)
 
 - `points` are **nozzle** coordinates (50/150.5 and 280/150.5 → probe at Y 175.5).
