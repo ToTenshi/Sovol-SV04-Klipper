@@ -25,6 +25,12 @@
   image: "Option 'minimum_cruise_ratio' is not valid in section 'printer'".
 - **Values from `configfile.set` (PROBE_CALIBRATE, Z_OFFSET_APPLY_PROBE, SHAPER_CALIBRATE, PID) are
   not active before SAVE_CONFIG + restart**, they are only "pending" (`save_config_pending_items`).
+- **SAVE_CONFIG values are ignored if the same option is active above the block.** On load, Klipper
+  comments out such autosave values (`configfile.py` `_strip_duplicates`, line ~302). That is why
+  SAVE_CONFIG comments out the values above. Anyone who writes printer.cfg themselves (merge, templates)
+  must also comment them out. Real bug 2026-11-28: template `z_offset: 0` active → saved 1.307 ignored.
+- Jinja tests like `match` don't exist (Ansible only). Runtime errors are not caught by
+  `env.from_string`, only by rendering (simulator).
 - `SAVE_CONFIG` comments out values in the main `printer.cfg` that are overridden by the autosave block.
   `Z_OFFSET_APPLY_PROBE` computes from the loaded `z_offset`, not from a pending one.
 - `manual_probe` always exists as an object (default load), `printer.manual_probe.is_active` is always readable.

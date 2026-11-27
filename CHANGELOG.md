@@ -22,6 +22,14 @@ newest version first.
   `config/SV04-with-display`.
 
 ### Added
+- `tools/printer_check.py`: read-only live check of the printer through the Moonraker API. It checks
+  Klipper state, firmware version, ignored SAVE_CONFIG values, z_offset loaded/plausible, T1 offset,
+  macro names/presence, outdated macro files compared with the repo, and the Z offset simulation of the
+  **installed** macros. Host/key from `tools/printer.local.env` (git-ignored) or `--host/--key`.
+- `docs/Upgrades-Bambu-Standard.md`: table of hardware upgrades towards Bambu Lab level (camera/Obico,
+  PEI plate, hardened nozzles, USB ADXL, Bambu X1/P1 hotend, Eddy, load cell, dual-gear extruder,
+  mainboard, enclosure, LEDs, AMS), each with Bambu compatibility, fit with the SV04 base, effort,
+  benefits and sources.
 - `PROBE_CHECK SAMPLES=10 BED_TEMP=0`: measures the bed centre several times with the BLTouch (`PROBE
   SAMPLES=1`, value from `printer.probe.last_z_result`), shows range, standard deviation and a rating
   in a Mainsail dialog. In the calibration group and in `SOVOL_MENU`.
@@ -87,6 +95,25 @@ newest version first.
 - The Cura guide now uses the user folder (survives Cura updates).
 
 ### Fixed
+- **Z offset lost after `sv04-pi-setup.sh --update`:** `merge_printer_cfg.py` took the template with an
+  active `z_offset: 0`. Klipper **ignores** SAVE_CONFIG values that are also active above the block
+  (`configfile.py` `_strip_duplicates`), so the calibrated 1.307 became 0. The merge now comments these
+  options out, exactly like SAVE_CONFIG (also PID values). Found live: file 1.307, loaded 0.0.
+- `CALIBRATE_Z_T1` refuses while the T0 z_offset is 0. A T1 value measured against an uncalibrated T0
+  is wrong (live: `dual_z_offset` −1.15).
+- The end-of-print dialog no longer appears after every print because of the adaptive mesh
+  (`bed_mesh default` is pending after every BED_MESH_CALIBRATE), only for real calibration values.
+- **Dual print: Z height lost after a tool change.** T0/T1 lifted the head by 2 mm and, during a print,
+  did not lower it again (the original macros relied on the slicer sending a Z move). The T1 Z offset
+  also only took effect on the next Z move (Klipper applies `SET_GCODE_OFFSET` without `MOVE` only
+  then). Simulated with the old config: T1 printed 1.88 mm too high, T0 after switching back 4 mm too
+  high. New `_SOVOL_TOOLCHANGE`: lift, park, switch, apply the offsets of the new tool, return to exactly
+  the same X/Y/Z. Without homing (e.g. from G28) it only switches, without moving.
+- **Babystep on T1 changed T0.** Saving a babystep made while T1 was printing went into the shared probe
+  z_offset, and a T1 babystep was also used by T0 after the next tool change. Now: babystep on T0 =
+  reference correction for both nozzles (→ probe z_offset), babystep on T1 = only T1 (→ `dual_z_offset`,
+  no SAVE_CONFIG). Mainsail's save button and `SAVE_Z_OFFSET` follow the same rule. A new `CALIBRATE_Z_T1`
+  value clears an unsaved T1 babystep.
 - **First layer too high after Z calibration:** a measured z_offset only takes effect after
   SAVE_CONFIG/restart, and SAVE_CONFIG was broken by the naming bug. Now `START_PRINT`
   (`_SOVOL_SYNC_Z_OFFSET`) uses a pending z_offset right away. `START_PRINT` also re-homes Z after

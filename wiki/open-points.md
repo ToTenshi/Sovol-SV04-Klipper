@@ -15,4 +15,5 @@
 | Bed screw positions | `[screws_tilt_adjust]` (probe over 31/0, 270/0, 270/240, 31/240) doesn't match `[bed_screws]` (nozzle over 25/35, 295/35, 295/295, 25/295). Check on the printer with `BED_SCREWS_CHECK` |
 | Mainsail in the Bambu Device tab | Keys are set, not checked in the GUI |
 | Load cell (automatic Z offset) | Hardware idea, see [hardware-ideas](hardware-ideas.md) |
+| Live check | `tools/printer_check.py` only reads. Active tests (moving) are deliberately not included |
 | Licence | The original repo has no licence. Clarify with Bully85 before publishing standalone |

@@ -17,6 +17,9 @@ origin/master` + `pip install -r scripts/klippy-requirements.txt`). `display` �
 fork → back to Klipper3d. Detection via `origin` contains "bully85" → `tar` backup of `~/printer_data/config` → copy config → chip/port → firmware →
 optional KlipperScreen → restart.
 
+- **Merge and SAVE_CONFIG:** `merge_printer_cfg.py` comments out in the template part every option that
+  is in the SAVE_CONFIG block (`strip_duplicates`, like Klipper). Without that, Klipper ignores the saved
+  value (2026-11-28: z_offset 1.307 → 0).
 - **Copy rules:** `variables.cfg` is never overwritten if it exists. An existing SV04 `printer.cfg`
   (contains `[dual_carriage]`) is merged with `install/merge_printer_cfg.py`: new template + the user's
   `[mcu] serial`, chip (detected from the active `stepper_z step_pin`: PB3 = GD32), `[include]` states and

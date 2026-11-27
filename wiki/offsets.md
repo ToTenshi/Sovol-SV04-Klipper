@@ -2,8 +2,21 @@
 
 - **T0 Z:** `[bltouch] z_offset` (SAVE_CONFIG block). **T1:** `dual_x/y/z_offset` in `variables.cfg`,
   relative to T0, set with `SET_OFFSET_T1 X= Y= Z=` (`XY_offset_dual` is an alias).
-- `_SOVOL_TOOL_OFFSET TOOL=n` sets X/Y absolutely and Z **relatively** (`Z_ADJUST`), and remembers
-  `applied_z`. So babysteps survive tool changes, even when T0/T1 are not called in pairs.
+- **Model since 2026-11-28:** G-code Z offset = `sync_z` + `baby0` (+ `dual_z_offset` + `baby1` while T1
+  is active). `baby0` = babystep made while T0/COPY/MIRROR prints, the reference correction for **both**
+  nozzles. `baby1` = babystep made while T1 prints, **only T1**. `_SOVOL_TOOL_OFFSET TOOL=n` computes the
+  live babystep of the active tool from `homing_origin.z`, stores it and sets the absolute offset of the
+  new tool. Saving: T0 → probe z_offset (`_SOVOL_SAVE_BABYSTEP_T0`, temporarily removes the T1 part,
+  then `sync_z += b0`). T1 → `dual_z_offset += b1` (`_SOVOL_SAVE_BABYSTEP_T1`, no movement). Why
+  hierarchical: a probe error affects both nozzles equally, a T1 error only T1. Strictly separate
+  babysteps would have counted a probe error twice (simulator scenario F).
+- **Tool change (`_SOVOL_TOOLCHANGE`):** remembers `gcode_position`, lifts by `z_hop`, parks, switches,
+  `RESTORE_GCODE_STATE` (without MOVE), new tool offsets, then `G1 X Y Z+hop` and `G1 Z` back to the same
+  G-code position. Klipper facts ([source notes](sources/2026-11-24_klipper-source-notes.md)): `G1`
+  without Z keeps the kinematic Z, and `SET_GCODE_OFFSET` without `MOVE` only takes effect on the next Z
+  move. The old macros (`RESTORE … MOVE=1` back to the *lifted* position, lowering only when not
+  printing) left the new tool 2 mm higher and without its offset if the slicer didn't send Z (old config
+  simulated: T1 +1.88 mm, T0 after switching back +4 mm).
 - `_SOVOL_TOOL_OFFSET_RESET` at `START_PRINT`/`END_PRINT` only removes the **T1 share** (X/Y absolute,
   Z via `-applied_z`). **The babystep stays** until saved or Klipper restarts, as in standard Klipper.
   Until 2026-11-26 it was set to 0, which threw away a babystep that was stored with

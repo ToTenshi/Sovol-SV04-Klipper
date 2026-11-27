@@ -20,6 +20,10 @@ All changes are listed in the [CHANGELOG](CHANGELOG.md).
 
 - **Mainsail inside Bambu Studio:** the Bambu profiles are pre-connected to `sv04.local`. The **Device**
   tab shows Mainsail, and *Print plate* uploads and starts the job. Other address: `--host` when installing.
+- **Dual print fixed:** after a tool change the new nozzle now always returns to exactly the right
+  height with its offset (before: up to 2 mm too high). A babystep on T1 only changes T1, on T0 both.
+- **Upgrade guide:** [hardware upgrades towards Bambu Lab level](docs/Upgrades-Bambu-Standard.md), with
+  what fits the SV04, what is shared with Bambu printers, effort and benefits.
 - **Better leveling:** more accurate probing, bed mesh up to the bed edges, mesh fade, `BED_SCREWS_CHECK`,
   `PROBE_CHECK` (how repeatable is the BLTouch?).
   `--update` now also updates `printer.cfg` (port, chip and SAVE_CONFIG values are kept).
@@ -254,3 +258,9 @@ is not touched, and a backup is made beforehand. What changed is listed in the
 # For developers and AI assistants
 
 The [wiki](wiki/index.md) describes the structure, conventions, pitfalls and test methods of this repository.
+
+**Checking the printer live:** `python3 tools/printer_check.py --host <printer IP> --key <Moonraker API key>`
+reads the printer (does not move or change anything) and reports known problems, e.g. ignored
+SAVE_CONFIG values, a missing Z offset, old firmware or outdated macros. The API key is shown in the
+browser at `http://<printer IP>/access/api_key`. Store host and key locally in `tools/printer.local.env`
+(`HOST=…`, `KEY=…`). That file is ignored by git, never commit the key.

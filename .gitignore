@@ -1,0 +1,4 @@
+# local only - never commit (contains the Moonraker API key)
+tools/printer.local.env
+__pycache__/
+.obsidian/

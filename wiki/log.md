@@ -2,6 +2,9 @@
 
 Newest entries first. One line per change: date – what – affected pages.
 
+- 2026-11-28 – Live analysis via Moonraker (tools/printer_check.py): z_offset 1.307 in the file but 0.0 loaded, because merge_printer_cfg brought back `z_offset: 0` active (Klipper ignores autosave duplicates); dual_z_offset −1.15 measured against T0=0. Fixed: merge strip_duplicates, CALIBRATE_Z_T1 guard, END prompt without bed_mesh – testing, installation, klipper-jinja-pitfalls
+- 2026-11-28 – Real test "dual print lost its Z offset": tool change stayed lifted / T1 offset only active on the next Z move; babystep on T1 changed T0. New `_SOVOL_TOOLCHANGE`, hierarchical babystep model, simulator with exact gcode_move semantics (old config: T1 +1.88 mm) – offsets, testing, sources
+- 2026-11-26 – Upgrade guide docs/Upgrades-Bambu-Standard.md (web research on SV04 hardware and Bambu compatibility) – hardware-ideas
 - 2026-11-26 – PROBE_CHECK (BLTouch repeatability); hardware ideas page (load cell as an upgrade, sensorless Z ruled out) – leveling, hardware-ideas
 - 2026-11-26 – Real test: MCU v0.11 (fork firmware) vs host v0.14 → "deprecated code / STEPPER_STEP_BOTH_EDGE". The Pi script now compares the versions and offers the firmware – installation
 - 2026-11-26 – Mainsail in Bambu Studio (print_host/print_host_webui), PrusaSlicer upload address, installer --host – slicers, installation

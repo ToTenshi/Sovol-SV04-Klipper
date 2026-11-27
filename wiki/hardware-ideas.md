@@ -1,6 +1,16 @@
 # Hardware ideas (upgrades)
 
 Ideas that need hardware changes. Look at them when you are working on the printer anyway.
+The user-facing overview with all upgrades, Bambu compatibility and benefits is in
+[docs/Upgrades-Bambu-Standard.md](../docs/Upgrades-Bambu-Standard.md).
+
+**Bambu compatibility (researched 2026-11-26):** Bambu plates are 257 mm (SV04 needs 310 × 320).
+Nozzles/extruders/AMS are proprietary. Only the **X1/P1 hotend** can be fitted to other printers with
+an adapter (SV08/Neptune 4/Ender 3 templates, 24 V/48 W, NTC 100K, no SV04 mount yet). The
+**H2/P2S** and A1 hotends are a different quick-swap system (Bambu: X1/P1 "Not Supported").
+Hardware base: [printer-hardware](printer-hardware.md).
+The user can print their own mounts/housings (2026-11-26), so "no ready-made SV04 mount" is not a
+blocker. Design rules are in the upgrade guide ("Eigene Halter drucken").
 
 ## Load cell for automatic Z offset ⭐ (user wish, 2026-11-26)
 

@@ -26,3 +26,8 @@ latest commit 2024-01-26), mainline = `Klipper3d/klipper` (master at that time).
 - **`klippy/gcode.py` (both versions):** `args_r = re.compile('([A-Z_]+|[A-Z*])')` (fork: `[A-Z*/]`),
   `cmd = parts[1] + parts[2].strip()`. So a name like `SV04_MENU` becomes the command `SV04`.
   Real error on 2026-11-25: `Unknown command:"_SV04"` on SAVE_CONFIG (macro `_SV04_SAVE_CONFIG_BASE`).
+- **`klippy/extras/gcode_move.py` (mainline, read 2026-11-28):** `cmd_G1` only sets `last_position`
+  for the given axes (`v + base_position`), missing axes keep the kinematic position.
+  `cmd_SET_GCODE_OFFSET` only changes `base_position`/`homing_position`, it only moves the toolhead with
+  `MOVE=1`. `cmd_RESTORE_GCODE_STATE` restores modes/`base_position`/`homing_position` and only
+  `last_position` (back to the saved position) with `MOVE=1`.

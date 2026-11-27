@@ -20,6 +20,10 @@ Alle Änderungen stehen im [CHANGELOG](CHANGELOG.md).
 
 - **Mainsail in Bambu Studio:** Die Bambu-Profile sind mit `sv04.local` vorverbunden. Der Reiter
   **Gerät** zeigt Mainsail, *Platte drucken* lädt hoch und startet den Druck. Andere Adresse: `--host` beim Installieren.
+- **Dual-Druck korrigiert:** Nach einem Werkzeugwechsel fährt die neue Düse jetzt immer exakt auf die
+  richtige Höhe mit ihrem Offset (vorher bis zu 2 mm zu hoch). Ein Babystep auf T1 ändert nur T1, auf T0 beide.
+- **Upgrade-Übersicht:** [Hardware-Upgrades in Richtung Bambu-Lab-Niveau](docs/Upgrades-Bambu-Standard.md),
+  mit Angaben, was zum SV04 passt, was mit Bambu-Druckern tauschbar ist, Aufwand und Vorteilen.
 - **Besseres Leveling:** genauere Messung, Bed Mesh bis an den Bettrand, Mesh-Fade, `BED_SCREWS_CHECK`,
   `PROBE_CHECK` (wie wiederholgenau misst der BLTouch?).
   `--update` aktualisiert jetzt auch die `printer.cfg` (Port, Chip und SAVE_CONFIG-Werte bleiben).
@@ -264,3 +268,9 @@ steht im [CHANGELOG](CHANGELOG.md). Wer ohne Skript aktualisiert, überschreibt 
 # Für Entwickler und KI-Assistenten
 
 Das [Wiki](wiki/index.md) beschreibt Aufbau, Konventionen, Fallstricke und Testmethoden dieses Repos.
+
+**Drucker live prüfen:** `python3 tools/printer_check.py --host <Drucker-IP> --key <Moonraker-API-Key>`
+liest den Drucker aus (bewegt und ändert nichts) und meldet bekannte Probleme, z. B. ignorierte
+SAVE_CONFIG-Werte, einen fehlenden Z-Offset, alte Firmware oder veraltete Makros. Den API-Key zeigt der
+Browser unter `http://<Drucker-IP>/access/api_key`. Host und Key könnt ihr lokal in
+`tools/printer.local.env` ablegen (`HOST=…`, `KEY=…`). Die Datei wird von Git ignoriert, den Key nie committen.

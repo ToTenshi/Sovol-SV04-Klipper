@@ -76,7 +76,13 @@ gespeichert werden soll.
   Mainsail-Panel löscht ihn.
 - `CALIBRATE_Z_T1` misst relativ zu T0. Ist der neue T0-Wert noch nicht gespeichert, verlangt es
   zuerst SAVE_CONFIG.
-- Bei jedem Werkzeugwechsel wird nur der T1-Anteil verrechnet. Ein Babystep gilt für beide Düsen.
+- **Babystep auf T0** korrigiert den Bezugspunkt (Sonde) und gilt deshalb für **beide** Düsen.
+  Gespeichert landet er im Sonden-Z-Offset, dafür ist SAVE_CONFIG nötig.
+- **Babystep auf T1** korrigiert nur T1 gegenüber T0 und gilt **nur für T1**. Gespeichert landet er im
+  T1-Offset (`dual_z_offset`), SAVE_CONFIG ist dafür nicht nötig. Korrigiere also während eines Dual-Drucks
+  T0 zuerst und T1 danach nur noch, wenn T1 alleine abweicht.
+- Beim Werkzeugwechsel fährt der Drucker immer exakt auf die vorherige Höhe zurück, mit dem Offset der
+  neuen Düse. Das passiert unabhängig davon, ob der Slicer danach eine Z-Höhe schickt.
 - `START_PRINT` homt Z nach dem Z-Tilt erneut, so wie die Kalibrierung. Der Nullpunkt ist beim
   Messen und beim Drucken derselbe.
 
